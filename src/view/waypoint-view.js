@@ -40,7 +40,7 @@ const createWayPointTemplate = () => (
     </li> `
 );
 
-export default class WayPointView {
+export default class WaypointView {
   getTemplate() {
     return createWayPointTemplate();
   }
