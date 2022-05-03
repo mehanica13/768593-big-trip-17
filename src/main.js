@@ -1,6 +1,7 @@
 import AllElPresenter from './presenter/all-el-presenter.js';
+import WaypointsModel from './model/waypoint-model.js';
 
-const pageBodyElement = document.querySelector('.page-body');
+const waypointsModel = new WaypointsModel();
 const allElPresenter = new AllElPresenter();
 
-allElPresenter.init(pageBodyElement);
+allElPresenter.init(waypointsModel);
