@@ -43,23 +43,28 @@ export default class AllElPresenter {
       this.#mainContentComponent.element.replaceChild(waypointComponent.element, waypointEditComponent.element);
     };
 
+    const onEscKeyDown = (evt) => {
+      if (evt.key === 'Escape' || evt.key === 'Esc') {
+        evt.preventDefault();
+        replaceFormToWaypoint();
+        document.removeEventListener('keydown',onEscKeyDown);
+      }
+    };
+
     waypointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
       replaceWaypointToForm();
+      document.addEventListener('keydown', onEscKeyDown);
     });
 
     waypointEditComponent.element.querySelector('.event--edit').addEventListener('submit', (evt) => {
       evt.preventDefault();
       replaceFormToWaypoint();
+      document.removeEventListener('keydown', onEscKeyDown);
     });
 
     waypointEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
       replaceFormToWaypoint();
-    });
-
-    document.addEventListener('keyup', (evt) => {
-      if (evt.key === 'Escape') {
-        replaceFormToWaypoint();
-      }
+      document.removeEventListener('keydown', onEscKeyDown);
     });
 
     render(waypointComponent, this.#mainContentComponent.element);
