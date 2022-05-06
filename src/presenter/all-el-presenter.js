@@ -9,21 +9,64 @@ const siteTripFiltersElement = document.querySelector('.trip-controls__filters')
 const siteTripEventsElement = document.querySelector('.trip-events');
 
 export default class AllElPresenter {
-  mainContentComponent = new MainContentView();
+  #waypointsModel = null;
+  #mainContentComponent = new MainContentView();
+  #allWaypoints = [];
+  #offers = [];
+  #allDestinations = [];
 
   init = (waypointsModel) => {
-    this.waypointsModel = waypointsModel;
-    this.allWaypoints = [...this.waypointsModel.getWaypoints()];
-    this.offersList = [...this.waypointsModel.getOffers()];
-    this.allDestinations = [...this.waypointsModel.getDestinations()];
+    this.#waypointsModel = waypointsModel;
+    this.#allWaypoints = [...this.#waypointsModel.waypoints];
+    this.#offers = [...this.#waypointsModel.offers];
+    this.#allDestinations = [...this.#waypointsModel.destinations];
 
     render(new FilterView(), siteTripFiltersElement);
     render(new SortView(), siteTripEventsElement);
-    render(this.mainContentComponent, siteTripEventsElement);
-    render(new WaypointEditView(this.allWaypoints[0], this.offersList, this.allDestinations[0]), this.mainContentComponent.getElement());
+    render(this.#mainContentComponent, siteTripEventsElement);
+    // render(new WaypointEditView(this.#allWaypoints[0], this.#offers, this.#allDestinations[0]), this.#mainContentComponent.element);
 
-    for (let i = 1; i < this.allWaypoints.length; i++) {
-      render(new WaypointView(this.allWaypoints[i], this.offersList, this.allDestinations[i]), this.mainContentComponent.getElement());
+    for (let i = 0; i < this.#allWaypoints.length; i++) {
+      this.#renderWayPoint(this.#allWaypoints[i], this.#offers, this.#allDestinations[i]);
     }
+  };
+
+  #renderWayPoint = (waypoint, offers, destination) => {
+    const waypointComponent = new WaypointView(waypoint, offers, destination);
+    const waypointEditComponent = new WaypointEditView(waypoint, offers, destination);
+
+    const replaceWaypointToForm = () => {
+      this.#mainContentComponent.element.replaceChild(waypointEditComponent.element, waypointComponent.element);
+    };
+
+    const replaceFormToWaypoint = () => {
+      this.#mainContentComponent.element.replaceChild(waypointComponent.element, waypointEditComponent.element);
+    };
+
+    const onEscKeyDown = (evt) => {
+      if (evt.key === 'Escape' || evt.key === 'Esc') {
+        evt.preventDefault();
+        replaceFormToWaypoint();
+        document.removeEventListener('keydown',onEscKeyDown);
+      }
+    };
+
+    waypointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceWaypointToForm();
+      document.addEventListener('keydown', onEscKeyDown);
+    });
+
+    waypointEditComponent.element.querySelector('.event--edit').addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      replaceFormToWaypoint();
+      document.removeEventListener('keydown', onEscKeyDown);
+    });
+
+    waypointEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceFormToWaypoint();
+      document.removeEventListener('keydown', onEscKeyDown);
+    });
+
+    render(waypointComponent, this.#mainContentComponent.element);
   };
 }

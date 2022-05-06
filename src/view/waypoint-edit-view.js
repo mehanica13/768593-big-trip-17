@@ -109,8 +109,13 @@ const createWaypointEditTemplate = (waypoint, offersList, destination) => {
 };
 
 export default class WaypointEditView {
-  constructor(waypoint, offersList, destination) {
-    this.waypoint = waypoint || {
+  #waypoint = null;
+  #offers = null;
+  #destination = null;
+  #element = null;
+
+  constructor(waypoint, offers, destination) {
+    this.#waypoint = waypoint || {
       basePrice: null,
       dateFrom: null,
       dateTo: null,
@@ -119,31 +124,31 @@ export default class WaypointEditView {
       offers: [],
       type: [],
     };
-    this.offersList = offersList || {
+    this.#offers = offers || {
       type: 'taxi',
       offers: [],
     };
-    this.destination = destination || {
+    this.#destination = destination || {
       description: 'Lorem ipsum',
       name: 'Lorem',
       pictures: [],
     };
   }
 
-  getTemplate() {
-    return createWaypointEditTemplate(this.waypoint, this.offersList, this.destination);
+  get template() {
+    return createWaypointEditTemplate(this.#waypoint, this.#offers, this.#destination);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
 
