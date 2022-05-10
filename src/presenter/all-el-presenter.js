@@ -2,8 +2,10 @@ import SortView from '../view/sort-view.js';
 import FilterView from '../view/filter-view.js';
 import MainContentView from '../view/main-content-view.js';
 import WaypointView from '../view/waypoint-view.js';
-import {render} from '../render.js';
 import WaypointEditView from '../view/waypoint-edit-view.js';
+import NoWaypointView from '../view/no-waypoint-view.js';
+import {render} from '../render.js';
+
 
 const siteTripFiltersElement = document.querySelector('.trip-controls__filters');
 const siteTripEventsElement = document.querySelector('.trip-events');
@@ -15,19 +17,30 @@ export default class AllElPresenter {
   #offers = [];
   #allDestinations = [];
 
-  init = (waypointsModel) => {
+  constructor(waypointsModel) {
     this.#waypointsModel = waypointsModel;
+  }
+
+  init = () => {
     this.#allWaypoints = [...this.#waypointsModel.waypoints];
     this.#offers = [...this.#waypointsModel.offers];
     this.#allDestinations = [...this.#waypointsModel.destinations];
 
-    render(new FilterView(), siteTripFiltersElement);
-    render(new SortView(), siteTripEventsElement);
-    render(this.#mainContentComponent, siteTripEventsElement);
-    // render(new WaypointEditView(this.#allWaypoints[0], this.#offers, this.#allDestinations[0]), this.#mainContentComponent.element);
+    this.#renderMainContent();
+  };
 
-    for (let i = 0; i < this.#allWaypoints.length; i++) {
-      this.#renderWayPoint(this.#allWaypoints[i], this.#offers, this.#allDestinations[i]);
+  #renderMainContent = () => {
+    render(new FilterView(), siteTripFiltersElement);
+
+    if (this.#allWaypoints.every((waypoint) => waypoint.isArchive)) {
+      render(new NoWaypointView(), siteTripEventsElement);
+    } else {
+      render(new SortView(), siteTripEventsElement);
+      render(this.#mainContentComponent, siteTripEventsElement);
+
+      for (let i = 0; i < this.#allWaypoints.length; i++) {
+        this.#renderWayPoint(this.#allWaypoints[i], this.#offers, this.#allDestinations[i]);
+      }
     }
   };
 
