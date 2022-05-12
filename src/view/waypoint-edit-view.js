@@ -1,6 +1,27 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { Destinations, WaypointTypes } from '../const.js';
-import { humanizeDateToCustomFormat } from '../utils.js';
+import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
+
+const BLANK_WAYPOINT = {
+  basePrice: null,
+  dateFrom: null,
+  dateTo: null,
+  destination: [],
+  isFavorite: false,
+  offers: [],
+  type: [],
+};
+
+const BLANK_OFFER = {
+  type: 'taxi',
+  offers: [],
+};
+
+const BLANK_DESTINATION = {
+  description: 'Lorem ipsum',
+  name: 'Lorem',
+  pictures: [],
+};
 
 const createEventTypeTemplate = (types) => types.map((type) => `<div class="event__type-item">
   <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
@@ -108,47 +129,40 @@ const createWaypointEditTemplate = (waypoint, offersList, destination) => {
   );
 };
 
-export default class WaypointEditView {
+export default class WaypointEditView extends AbstractView {
   #waypoint = null;
   #offers = null;
   #destination = null;
-  #element = null;
 
-  constructor(waypoint, offers, destination) {
-    this.#waypoint = waypoint || {
-      basePrice: null,
-      dateFrom: null,
-      dateTo: null,
-      destination: [],
-      isFavorite: false,
-      offers: [],
-      type: [],
-    };
-    this.#offers = offers || {
-      type: 'taxi',
-      offers: [],
-    };
-    this.#destination = destination || {
-      description: 'Lorem ipsum',
-      name: 'Lorem',
-      pictures: [],
-    };
+  constructor(waypoint = BLANK_WAYPOINT, offers = BLANK_OFFER, destination = BLANK_DESTINATION) {
+    super();
+    this.#waypoint = waypoint;
+    this.#offers = offers;
+    this.#destination = destination;
   }
 
   get template() {
     return createWaypointEditTemplate(this.#waypoint, this.#offers, this.#destination);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
+  };
 
-    return this.#element;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  setEditClickHandler = (callback) => {
+    this._callback.editClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  };
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.editClick();
+  };
 }
 

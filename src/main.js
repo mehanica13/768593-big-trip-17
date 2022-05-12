@@ -1,3 +1,4 @@
+// import { render } from './framework/render.js';
 import AllElPresenter from './presenter/all-el-presenter.js';
 import WaypointsModel from './model/waypoint-model.js';
 
