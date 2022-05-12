@@ -1,11 +1,10 @@
+import { render, replace } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import FilterView from '../view/filter-view.js';
 import MainContentView from '../view/main-content-view.js';
 import WaypointView from '../view/waypoint-view.js';
 import WaypointEditView from '../view/waypoint-edit-view.js';
 import NoWaypointView from '../view/no-waypoint-view.js';
-import {render} from '../render.js';
-
 
 const siteTripFiltersElement = document.querySelector('.trip-controls__filters');
 const siteTripEventsElement = document.querySelector('.trip-events');
@@ -49,11 +48,11 @@ export default class AllElPresenter {
     const waypointEditComponent = new WaypointEditView(waypoint, offers, destination);
 
     const replaceWaypointToForm = () => {
-      this.#mainContentComponent.element.replaceChild(waypointEditComponent.element, waypointComponent.element);
+      replace(waypointEditComponent, waypointComponent);
     };
 
     const replaceFormToWaypoint = () => {
-      this.#mainContentComponent.element.replaceChild(waypointComponent.element, waypointEditComponent.element);
+      replace(waypointComponent, waypointEditComponent);
     };
 
     const onEscKeyDown = (evt) => {
@@ -64,18 +63,17 @@ export default class AllElPresenter {
       }
     };
 
-    waypointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    waypointComponent.setClickHandler(() => {
       replaceWaypointToForm();
       document.addEventListener('keydown', onEscKeyDown);
     });
 
-    waypointEditComponent.element.querySelector('.event--edit').addEventListener('submit', (evt) => {
-      evt.preventDefault();
+    waypointEditComponent.setFormSubmitHandler(() => {
       replaceFormToWaypoint();
       document.removeEventListener('keydown', onEscKeyDown);
     });
 
-    waypointEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    waypointEditComponent.setEditClickHandler(() => {
       replaceFormToWaypoint();
       document.removeEventListener('keydown', onEscKeyDown);
     });

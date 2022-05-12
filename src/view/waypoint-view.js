@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
-import {humanizeEventDate, humanizeDataSetEventDate, humanizeDataSetEventTime, humanizeDateTime, getTimeDifference} from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import {humanizeEventDate, humanizeDataSetEventDate, humanizeDataSetEventTime, humanizeDateTime, getTimeDifference} from '../utils/waypoint.js';
 
 const createWaypointOfferItemTemplate = (offersList, type) => {
   const x = offersList.find((item) => item.type === type);
@@ -65,13 +65,13 @@ const createWaypointTemplate = (waypoint, offersList, destination) => {
   );
 };
 
-export default class WaypointView {
+export default class WaypointView extends AbstractView {
   #waypoint = null;
   #offers = null;
   #destination = null;
-  #element = null;
 
   constructor(waypoint, offers, destination) {
+    super();
     this.#waypoint = waypoint;
     this.#offers = offers;
     this.#destination = destination;
@@ -81,15 +81,13 @@ export default class WaypointView {
     return createWaypointTemplate(this.#waypoint, this.#offers, this.#destination);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }

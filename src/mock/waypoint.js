@@ -1,5 +1,6 @@
 import { Destinations, DestinationDescriptions, MAX_PRICE, MIN_PRICE, Offers, OFFER_COUNT, WaypointTypes } from '../const.js';
-import {getRandomInteger, generateRandomDateMin, generateRandomDateMax, getRandomArrayItem, shuffleArray } from '../utils.js';
+import { generateRandomDateMin, generateRandomDateMax } from '../utils/waypoint.js';
+import { getRandomInteger, getRandomArrayItem, shuffleArray } from '../utils/common.js';
 
 const getPhotos = () => {
   const photosAmount = getRandomInteger(0, 4);
