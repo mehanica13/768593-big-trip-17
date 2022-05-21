@@ -1,39 +1,56 @@
-import { FilterType } from '../const.js';
+import dayjs from 'dayjs';
 import AbstractView from '../framework/view/abstract-view.js';
+import { FilterType } from '../const.js';
 
-const createFilterTemplate = (currentFilterType = FilterType.EVERYTHING) => (
-  `<form class="trip-filters" action="#" method="get">
-    <div class="trip-filters__filter">
-      <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" ${currentFilterType === FilterType.EVERYTHING ? 'checked' : ''}>
-      <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
-    </div>
+function getPastWaypoints(waypoints) {
+  return waypoints.some((waypoint) => waypoint.dateFrom < dayjs().format('YYYY-MM-DDTHH:mm')) ? '' : 'disabled';
+}
 
-    <div class="trip-filters__filter">
-      <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future" ${currentFilterType === FilterType.FUTURE ? 'checked' : ''}>
-      <label class="trip-filters__filter-label" for="filter-future">Future</label>
-    </div>
+function getFutureWaypoints (waypoints) {
+  return waypoints.some((waypoint) => waypoint.dateFrom >= dayjs().format('YYYY-MM-DDTHH:mm')) ? '' : 'disabled';
+}
 
-    <div class="trip-filters__filter">
-      <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" ${currentFilterType === FilterType.PAST ? 'checked' : ''}>
-      <label class="trip-filters__filter-label" for="filter-past">Past</label>
-    </div>
+const createFilterTemplate = (waypoints, currentFilterType = FilterType.EVERYTHING) => {
+  const isPastDisabled = getPastWaypoints(waypoints);
+  const isFutureDisabled = getFutureWaypoints(waypoints);
 
-    <button class="visually-hidden" type="submit">Accept filter</button>
-  </form>`
-);
+  return (
+    `<form class="trip-filters" action="#" method="get">
+      <div class="trip-filters__filter">
+        <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" ${currentFilterType === FilterType.EVERYTHING ? 'checked' : ''}>
+        <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
+      </div>
+
+      <div class="trip-filters__filter">
+        <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future" ${currentFilterType === FilterType.FUTURE ? 'checked' : ''} ${isFutureDisabled}>
+        <label class="trip-filters__filter-label" for="filter-future">Future</label>
+      </div>
+
+      <div class="trip-filters__filter">
+        <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" ${currentFilterType === FilterType.PAST ? 'checked' : ''} ${isPastDisabled}>
+        <label class="trip-filters__filter-label" for="filter-past">Past</label>
+      </div>
+
+      <button class="visually-hidden" type="submit">Accept filter</button>
+    </form>`
+  );
+};
 
 export default class FilterView extends AbstractView {
   #currentFilterType = null;
-  constructor(currentFilterType) {
+  #waypoints = null;
+
+  constructor(waypoints, currentFilterType) {
     super();
 
     this.#currentFilterType = currentFilterType;
+    this.#waypoints = waypoints;
 
     this._filterTypeChangeHandler = this._filterTypeChangeHandler.bind(this);
   }
 
   get template() {
-    return createFilterTemplate(this.#currentFilterType);
+    return createFilterTemplate(this.#waypoints, this.#currentFilterType);
   }
 
   setFilterTypeChangeHandler(callback) {

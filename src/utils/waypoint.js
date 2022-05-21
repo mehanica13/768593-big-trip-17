@@ -71,7 +71,7 @@ const sortByTime = (waypoint1, waypoint2) => {
 
 const filter = {
   [FilterType.EVERYTHING]: (waypoints) => waypoints,
-  [FilterType.FUTURE]: (waypoints) => waypoints.filter((waypoint) => waypoint.dateFrom > dayjs().format('YYYY-MM-DDTHH:mm')),
+  [FilterType.FUTURE]: (waypoints) => waypoints.filter((waypoint) => waypoint.dateFrom >= dayjs().format('YYYY-MM-DDTHH:mm')),
   [FilterType.PAST]: (waypoints) => waypoints.filter((waypoint) => waypoint.dateTo < dayjs().format('YYYY-MM-DDTHH:mm'))
 };
 

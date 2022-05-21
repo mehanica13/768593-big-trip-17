@@ -8,7 +8,7 @@ const filtersContainer = document.querySelector('.trip-controls__filters');
 const waypointsModel = new WaypointsModel();
 const filterModel = new FilterModel();
 
-const filterPresenter = new FilterPresenter(filtersContainer, filterModel);
+const filterPresenter = new FilterPresenter(filtersContainer, filterModel, waypointsModel);
 filterPresenter.init();
 
 const allElPresenter = new AllElPresenter(waypointsModel, filterModel);
