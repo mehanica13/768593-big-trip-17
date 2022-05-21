@@ -1,19 +1,20 @@
+import { FilterType } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
-const createFilterTemplate = () => (
+const createFilterTemplate = (currentFilterType = FilterType.EVERYTHING) => (
   `<form class="trip-filters" action="#" method="get">
     <div class="trip-filters__filter">
-      <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" checked>
+      <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" ${currentFilterType === FilterType.EVERYTHING ? 'checked' : ''}>
       <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
     </div>
 
     <div class="trip-filters__filter">
-      <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future">
+      <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future" ${currentFilterType === FilterType.FUTURE ? 'checked' : ''}>
       <label class="trip-filters__filter-label" for="filter-future">Future</label>
     </div>
 
     <div class="trip-filters__filter">
-      <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past">
+      <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" ${currentFilterType === FilterType.PAST ? 'checked' : ''}>
       <label class="trip-filters__filter-label" for="filter-past">Past</label>
     </div>
 
@@ -22,7 +23,30 @@ const createFilterTemplate = () => (
 );
 
 export default class FilterView extends AbstractView {
-  get template() {
-    return createFilterTemplate();
+  #currentFilterType = null;
+  constructor(currentFilterType) {
+    super();
+
+    this.#currentFilterType = currentFilterType;
+
+    this._filterTypeChangeHandler = this._filterTypeChangeHandler.bind(this);
   }
+
+  get template() {
+    return createFilterTemplate(this.#currentFilterType);
+  }
+
+  setFilterTypeChangeHandler(callback) {
+    this._callback.filterTypeChange = callback;
+
+    this.element.addEventListener('change', this._filterTypeChangeHandler);
+  }
+
+  _filterTypeChangeHandler = (evt) => {
+    if (evt.target.tagName === 'INPUT') {
+      evt.preventDefault();
+
+      this._callback.filterTypeChange(evt.target.value);
+    }
+  };
 }

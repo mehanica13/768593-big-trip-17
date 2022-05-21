@@ -1,8 +1,6 @@
 const NUMBER_OF_POINT = 14;
 const MIN_PRICE = 20;
 const MAX_PRICE = 200;
-const MIN_GAP = 2000;
-const MAX_GAP = 2200;
 const TIME_NUMB = 10;
 const OFFER_COUNT = 5;
 
@@ -10,6 +8,30 @@ const TimeInMs = {
   MINS_IN_HOUR: 60,
   MINS_IN_DAY: 1440,
 };
+
+const timeMaxGap = {
+  seconds: 60,
+  minutes: 60,
+  hours: 24,
+  days: 30,
+};
+
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
+};
+
+const UpdateType = {
+  ALL: 'ALL'
+};
+
+const SortType = {
+  DEFAULT: 'day',
+  TIME: 'time',
+  PRICE: 'price',
+};
+
 const WaypointTypes = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 const Destinations = ['Amsterdam', 'Chamonix', 'Geneva', 'Reykjavik' ,'Singapore', 'Saint Petersburg', 'Tokyo'];
 const DestinationDescriptions = [
@@ -66,4 +88,4 @@ const Offers = [
   }
 ];
 
-export { NUMBER_OF_POINT, WaypointTypes, TimeInMs, TIME_NUMB, MIN_GAP, MAX_GAP, Destinations, MIN_PRICE, MAX_PRICE, DestinationDescriptions, Offers, OFFER_COUNT};
+export { NUMBER_OF_POINT, WaypointTypes, TimeInMs, TIME_NUMB, timeMaxGap, Destinations, MIN_PRICE, MAX_PRICE, DestinationDescriptions, Offers, OFFER_COUNT, FilterType, SortType, UpdateType };
