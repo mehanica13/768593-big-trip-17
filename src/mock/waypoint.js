@@ -1,5 +1,5 @@
 import { Destinations, DestinationDescriptions, MAX_PRICE, MIN_PRICE, Offers, OFFER_COUNT, WaypointTypes } from '../const.js';
-import { generateRandomDateMin, generateRandomDateMax } from '../utils/waypoint.js';
+import { generateRandomStartDate, generateRandomFutureDate } from '../utils/waypoint.js';
 import { getRandomInteger, getRandomArrayItem, shuffleArray } from '../utils/common.js';
 
 const getPhotos = () => {
@@ -27,13 +27,17 @@ export const generateOffersList = () => ({
   offers: shuffleArray(Offers).slice(0, getRandomInteger(0, OFFER_COUNT)),
 });
 
-export const generateWaypoint = () => ({
-  basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
-  dateFrom: generateRandomDateMin(),
-  dateTo: generateRandomDateMax(),
-  destination: [getRandomInteger(0, Destinations.length)],
-  isFavorite: Boolean(getRandomInteger(0, 1)),
-  offers: [getRandomInteger(0, Offers.length)],
-  type: getRandomArrayItem(WaypointTypes),
-  id: [1],
-});
+export const generateWaypoint = () => {
+  const startDate = generateRandomStartDate();
+
+  return ({
+    basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
+    dateFrom: startDate,
+    dateTo: generateRandomFutureDate(startDate),
+    destination: [getRandomInteger(0, Destinations.length)],
+    isFavorite: Boolean(getRandomInteger(0, 1)),
+    offers: [getRandomInteger(0, Offers.length)],
+    type: getRandomArrayItem(WaypointTypes),
+    id: [1],
+  });
+};
