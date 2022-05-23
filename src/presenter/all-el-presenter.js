@@ -1,11 +1,11 @@
-import { render, replace, remove } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import { SortType } from '../const.js';
 import { sortByDate, sortByPrice, sortByTime, filter } from '../utils/waypoint.js';
+import { updateItem } from '../utils/common.js';
 import SortView from '../view/sort-view.js';
 import MainContentView from '../view/main-content-view.js';
-import WaypointView from '../view/waypoint-view.js';
-import WaypointEditView from '../view/waypoint-edit-view.js';
 import NoWaypointView from '../view/no-waypoint-view.js';
+import WaypointPresenter from './waypoint-presenter.js';
 
 const siteTripEventsElement = document.querySelector('.trip-events');
 
@@ -14,10 +14,11 @@ export default class AllElPresenter {
   #filterModel = null;
   #sortingComponent = null;
   #currentSortType = null;
-  #mainContentComponent = new MainContentView();
+  #waypointsContainer = new MainContentView();
   #allWaypoints = [];
   #offers = [];
   #allDestinations = [];
+  #waypointPresenter = new Map ();
 
   constructor(waypointsModel, filterModel) {
     this.#waypointsModel = waypointsModel;
@@ -60,43 +61,9 @@ export default class AllElPresenter {
   }
 
   #renderWaypoint = (waypoint, offers, destination) => {
-    const waypointComponent = new WaypointView(waypoint, offers, destination);
-    const waypointEditComponent = new WaypointEditView(waypoint, offers, destination);
-
-    const replaceWaypointToForm = () => {
-      replace(waypointEditComponent, waypointComponent);
-    };
-
-    const replaceFormToWaypoint = () => {
-      replace(waypointComponent, waypointEditComponent);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replaceFormToWaypoint();
-        document.removeEventListener('keydown',onEscKeyDown);
-      }
-    };
-
-    waypointComponent.setOnRollupBtnClickHandler(() => {
-      replaceWaypointToForm();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
-
-    waypointComponent.setOnFavoriteBtnClickHandler();
-
-    waypointEditComponent.setFormSubmitHandler(() => {
-      replaceFormToWaypoint();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    waypointEditComponent.setEditClickHandler(() => {
-      replaceFormToWaypoint();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(waypointComponent, this.#mainContentComponent.element);
+    const waypointPresenter = new WaypointPresenter(this.#waypointsContainer.element, this.#handleWaypointChange, this.#handleModeChange);
+    waypointPresenter.init( waypoint, offers, destination);
+    this.#waypointPresenter.set(waypoint.id, waypointPresenter);
   };
 
   #renderWaypointList() {
@@ -105,8 +72,13 @@ export default class AllElPresenter {
     }
   }
 
+  #clearWaypointList = () => {
+    this.#waypointPresenter.forEach((presenter) => presenter.destroy());
+    this.#waypointPresenter.clear();
+  };
+
   #renderWaypointsContainer() {
-    render(this.#mainContentComponent, siteTripEventsElement);
+    render(this.#waypointsContainer, siteTripEventsElement);
   }
 
   #renderSortView() {
@@ -133,22 +105,27 @@ export default class AllElPresenter {
     }
   };
 
+  #handleModeChange = () => {
+    this.#waypointPresenter.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleWaypointChange = (updatedWaypoint) => {
+    this.#allWaypoints = updateItem(this.#allWaypoints, updatedWaypoint);
+    this.#waypointPresenter.get(updatedWaypoint.id).init(updatedWaypoint);
+  };
+
   _onSortTypeChange(sortType) {
     if (this.#currentSortType === sortType) {
       return;
     }
     this.#currentSortType = sortType;
 
-    remove(this.#mainContentComponent);
-    this.#renderWaypointsContainer();
+    this.#clearWaypointList();
     this.#renderWaypointList();
   }
 
   _onFilterChange() {
-    remove(this.#sortingComponent);
-    remove(this.#mainContentComponent);
-    this.#renderSortView();
-    this.#renderWaypointsContainer();
+    this.#clearWaypointList();
     this.#renderWaypointList();
   }
 }
