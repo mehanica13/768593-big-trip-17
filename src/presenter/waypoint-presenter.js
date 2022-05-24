@@ -95,7 +95,7 @@ export default class WaypointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#waypoint, isFavorite: !this.#waypoint.isFavorite});
+    this.#changeData({...this.#waypoint, isFavorite: !this.#waypoint.isFavorite}, this.#offers, this.#destination);
   };
 
   #handleFormSubmit = (waypoint, offers, destination) => {

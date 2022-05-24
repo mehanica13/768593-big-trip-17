@@ -109,9 +109,9 @@ export default class AllElPresenter {
     this.#waypointPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleWaypointChange = (updatedWaypoint) => {
+  #handleWaypointChange = (updatedWaypoint, offers, destination) => {
     this.#allWaypoints = updateItem(this.#allWaypoints, updatedWaypoint);
-    this.#waypointPresenter.get(updatedWaypoint.id).init(updatedWaypoint);
+    this.#waypointPresenter.get(updatedWaypoint.id).init(updatedWaypoint, offers, destination);
   };
 
   _onSortTypeChange(sortType) {

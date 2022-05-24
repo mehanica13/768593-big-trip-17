@@ -11,7 +11,6 @@ const createWaypointOfferItemTemplate = (offersList, type) => {
 };
 
 const createWaypointTemplate = (waypoint, offersList, destination) => {
-  console.log(destination);
   const { name } = destination;
   const { type, dateFrom, dateTo, isFavorite, basePrice, } = waypoint;
 
