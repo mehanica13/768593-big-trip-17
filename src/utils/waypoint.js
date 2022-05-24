@@ -4,21 +4,17 @@ import {TimeInMs, TIME_NUMB, timeMaxGap, FilterType } from '../const';
 import mrFlatpickr from 'flatpickr';
 export { mrFlatpickr };
 
-function generateRandomStartDate() {
-  return dayjs('2022-05-04')
-    .add(getRandomInteger(0, timeMaxGap.days), 'day')
-    .add(getRandomInteger(0, timeMaxGap.hours), 'hour')
-    .add(getRandomInteger(0, timeMaxGap.minutes), 'minute')
-    .add(getRandomInteger(0, timeMaxGap.seconds), 'second').format('YYYY-MM-DDTHH:mm');
-}
+const generateRandomStartDate = () => dayjs('2022-05-04')
+  .add(getRandomInteger(0, timeMaxGap.days), 'day')
+  .add(getRandomInteger(0, timeMaxGap.hours), 'hour')
+  .add(getRandomInteger(0, timeMaxGap.minutes), 'minute')
+  .add(getRandomInteger(0, timeMaxGap.seconds), 'second').format('YYYY-MM-DDTHH:mm');
 
-function generateRandomFutureDate(dateFrom) {
-  return dayjs(dateFrom)
-    .add(getRandomInteger(0, timeMaxGap.days), 'day')
-    .add(getRandomInteger(0, timeMaxGap.hours), 'hour')
-    .add(getRandomInteger(0, timeMaxGap.minutes), 'minute')
-    .add(getRandomInteger(0, timeMaxGap.seconds), 'second').format('YYYY-MM-DDTHH:mm');
-}
+const generateRandomFutureDate = (dateFrom) => dayjs(dateFrom)
+  .add(getRandomInteger(0, timeMaxGap.days), 'day')
+  .add(getRandomInteger(0, timeMaxGap.hours), 'hour')
+  .add(getRandomInteger(0, timeMaxGap.minutes), 'minute')
+  .add(getRandomInteger(0, timeMaxGap.seconds), 'second').format('YYYY-MM-DDTHH:mm');
 
 const humanizeEventDate = (date) => dayjs(date).format('MMM D');
 const humanizeDataSetEventDate = (date) => dayjs(date).format('YYYY-MM-DD');

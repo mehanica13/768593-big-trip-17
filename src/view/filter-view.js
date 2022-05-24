@@ -3,7 +3,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { FilterType } from '../const.js';
 
 function getPastWaypoints(waypoints) {
-  return waypoints.some((waypoint) => waypoint.dateFrom < dayjs().format('YYYY-MM-DDTHH:mm')) ? '' : 'disabled';
+  return waypoints.some((waypoint) => waypoint.dateTo< dayjs().format('YYYY-MM-DDTHH:mm')) ? '' : 'disabled';
 }
 
 function getFutureWaypoints (waypoints) {

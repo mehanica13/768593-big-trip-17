@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { Destinations, DestinationDescriptions, MAX_PRICE, MIN_PRICE, Offers, OFFER_COUNT, WaypointTypes } from '../const.js';
 import { generateRandomStartDate, generateRandomFutureDate } from '../utils/waypoint.js';
 import { getRandomInteger, getRandomArrayItem, shuffleArray } from '../utils/common.js';
@@ -38,6 +39,6 @@ export const generateWaypoint = () => {
     isFavorite: Boolean(getRandomInteger(0, 1)),
     offers: [getRandomInteger(0, Offers.length)],
     type: getRandomArrayItem(WaypointTypes),
-    id: [1],
+    id: nanoid(),
   });
 };
