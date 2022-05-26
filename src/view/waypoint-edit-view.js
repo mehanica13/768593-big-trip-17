@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { Destinations, WaypointTypes } from '../const.js';
 import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
 
@@ -23,18 +23,18 @@ const BLANK_DESTINATION = {
   pictures: [],
 };
 
-const createEventTypeTemplate = (types) => types.map((type) => `<div class="event__type-item">
-  <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+const createEventTypeTemplate = (chosenType) => WaypointTypes.map((type) => `<div class="event__type-item">
+  <input id="event-type-${type}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${type === chosenType ? 'checked' : ''}>
   <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
 </div>`).join('');
 
 const createDestinationListTemplate = (cites) => cites.map((city) => `<option value="${city}"></option>`).join('');
 
-const createOfferTemplate = (offersList, waypoint) => {
-  const offerItem = offersList.find((item) => item.type === waypoint.type);
+const createOfferTemplate = (offersList, state) => {
+  const offerItem = offersList.find((item) => item.type === state.type);
 
   return offerItem ? offerItem.offers.map((offer) => `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerItem.type}-1" type="checkbox" name="event-offer-${offerItem.type}" ${waypoint.offers.includes(offer.id) ? 'checked' : ''}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerItem.type}-1" type="checkbox" name="event-offer-${offerItem.type}" ${state.offers.includes(offer.id) ? 'checked' : ''}>
       <label class="event__offer-label" for="event-offer-${offerItem.type}-1">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -47,8 +47,8 @@ const createDestinationDesc = (description) => description ? `<p class="event__d
 
 const createImageTemplate = (pictures) => pictures.map((img) => `<img class="event__photo" src="img/photos/${img.src}.jpg" alt="Event photo">`).join('');
 
-const createWaypointEditTemplate = (waypoint, offersList, destination) => {
-  const { type, dateFrom, dateTo, basePrice } = waypoint;
+const createWaypointEditTemplate = (state, offersList, destination) => {
+  const { type, dateFrom, dateTo, basePrice } = state;
   const { description, name, pictures } = destination;
   const startTime = (dateFrom !== null) ? humanizeDateToCustomFormat(dateFrom) : '';
   const endTime = (dateTo !== null) ? humanizeDateToCustomFormat(dateTo) : '';
@@ -68,7 +68,7 @@ const createWaypointEditTemplate = (waypoint, offersList, destination) => {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createEventTypeTemplate(WaypointTypes)}
+                ${createEventTypeTemplate(type)}
               </fieldset>
             </div>
           </div>
@@ -109,7 +109,7 @@ const createWaypointEditTemplate = (waypoint, offersList, destination) => {
           ${offersList.type === offersList.type ?  `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-              ${createOfferTemplate(offersList, waypoint)}
+              ${createOfferTemplate(offersList, state)}
             </div>
           </section>` : ''}
 
@@ -129,7 +129,7 @@ const createWaypointEditTemplate = (waypoint, offersList, destination) => {
   );
 };
 
-export default class WaypointEditView extends AbstractView {
+export default class WaypointEditView extends AbstractStatefulView {
   #waypoint = null;
   #offers = null;
   #destination = null;
@@ -139,10 +139,14 @@ export default class WaypointEditView extends AbstractView {
     this.#waypoint = waypoint;
     this.#offers = offers;
     this.#destination = destination;
+    this._state = WaypointEditView.parseWaypointToState(waypoint);
+    // this.#typeListClickHandler = this.#typeListClickHandler.bind(this);
+
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createWaypointEditTemplate(this.#waypoint, this.#offers, this.#destination);
+    return createWaypointEditTemplate(this._state, this.#offers, this.#destination);
   }
 
   setFormSubmitHandler = (callback) => {
@@ -152,10 +156,11 @@ export default class WaypointEditView extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(this.#waypoint, this.#offers, this.#destination);
+    this._callback.formSubmit(WaypointEditView.parseStateToWaypoint(this._state), this.#offers, this.#destination);
   };
 
   setEditClickHandler = (callback) => {
+    console.log('2', this);
     this._callback.editClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   };
@@ -163,6 +168,42 @@ export default class WaypointEditView extends AbstractView {
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.editClick();
+  };
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setEditClickHandler(this._callback.rollUpClick);
+  }
+
+  #typeListClickHandler(evt) {
+    if (evt.target.tagName === 'LABEL') {
+      const newType = evt.target.parentElement.querySelector('input').value;
+      console.log(newType);
+      console.log('1', this);
+      this.element.updateElement({
+        type: newType,
+      });
+    }
+  }
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-list').addEventListener('click', this.#typeListClickHandler);
+  };
+
+  static parseWaypointToState = (waypoint) => ({...waypoint,
+    type: waypoint.type !== null,
+  });
+
+  static parseStateToWaypoint = (state) => {
+    const waypoint = {...state};
+
+    if (!waypoint.type) {
+      waypoint.type = [];
+    }
+
+    delete waypoint.type;
+    return waypoint;
   };
 }
 
