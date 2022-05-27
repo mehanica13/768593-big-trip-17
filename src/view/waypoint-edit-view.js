@@ -140,7 +140,6 @@ export default class WaypointEditView extends AbstractStatefulView {
     this.#offers = offers;
     this.#destination = destination;
     this._state = WaypointEditView.parseWaypointToState(waypoint);
-    // this.#typeListClickHandler = this.#typeListClickHandler.bind(this);
 
     this.#setInnerHandlers();
   }
@@ -160,7 +159,6 @@ export default class WaypointEditView extends AbstractStatefulView {
   };
 
   setEditClickHandler = (callback) => {
-    console.log('2', this);
     this._callback.editClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   };
@@ -170,36 +168,39 @@ export default class WaypointEditView extends AbstractStatefulView {
     this._callback.editClick();
   };
 
-  restoreHandlers() {
-    this._setInnerHandlers();
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditClickHandler(this._callback.rollUpClick);
-  }
+  };
 
-  #typeListClickHandler(evt) {
+  #typeListClickHandler = (evt) => {
     if (evt.target.tagName === 'LABEL') {
       const newType = evt.target.parentElement.querySelector('input').value;
-      console.log(newType);
-      console.log('1', this);
-      this.element.updateElement({
+      this.updateElement({
         type: newType,
       });
     }
-  }
+  };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#typeListClickHandler);
   };
 
   static parseWaypointToState = (waypoint) => ({...waypoint,
-    type: waypoint.type !== null,
+    type: waypoint.type,
+    destination: waypoint.destination,
   });
 
   static parseStateToWaypoint = (state) => {
     const waypoint = {...state};
 
     if (!waypoint.type) {
-      waypoint.type = [];
+      waypoint.type = '';
+    }
+
+    if (!waypoint.destination) {
+      waypoint.destination = '';
     }
 
     delete waypoint.type;
