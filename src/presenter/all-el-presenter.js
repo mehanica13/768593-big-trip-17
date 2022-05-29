@@ -16,8 +16,6 @@ export default class AllElPresenter {
   #currentSortType = null;
   #waypointsContainer = new MainContentView();
   #allWaypoints = [];
-  #offers = [];
-  #allDestinations = [];
   #waypointPresenter = new Map ();
 
   constructor(waypointsModel, filterModel) {
@@ -31,8 +29,6 @@ export default class AllElPresenter {
 
   init = () => {
     this.#allWaypoints = [...this.#waypointsModel.waypoints];
-    this.#offers = [...this.#waypointsModel.offers];
-    this.#allDestinations = [...this.#waypointsModel.destinations];
 
     this.#filterModel.addObserver(this._onFilterChange);
 
@@ -60,15 +56,15 @@ export default class AllElPresenter {
     render(new NoWaypointView(), siteTripEventsElement);
   }
 
-  #renderWaypoint = (waypoint, offers, destination) => {
+  #renderWaypoint = (waypoint) => {
     const waypointPresenter = new WaypointPresenter(this.#waypointsContainer.element, this.#handleWaypointChange, this.#handleModeChange);
-    waypointPresenter.init( waypoint, offers, destination);
-    this.#waypointPresenter.set(waypoint.id, waypointPresenter);
+    waypointPresenter.init( waypoint);
+    this.#waypointPresenter[waypoint.id] = waypointPresenter;
   };
 
   #renderWaypointList() {
     for (let i = 0; i < this.#getActualWaypoints(this.#allWaypoints).length; i++) {
-      this.#renderWaypoint(this.#getActualWaypoints(this.#allWaypoints)[i], this.#offers, this.#allDestinations[i]);
+      this.#renderWaypoint(this.#getActualWaypoints(this.#allWaypoints)[i]);
     }
   }
 
@@ -109,9 +105,12 @@ export default class AllElPresenter {
     this.#waypointPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleWaypointChange = (updatedWaypoint, offers, destination) => {
+  #handleWaypointChange = (updatedWaypoint) => {
     this.#allWaypoints = updateItem(this.#allWaypoints, updatedWaypoint);
-    this.#waypointPresenter.get(updatedWaypoint.id).init(updatedWaypoint, offers, destination);
+    console.log('new1',this.#waypointPresenter[updatedWaypoint.id]);
+    console.log(updatedWaypoint);
+    this.#waypointPresenter[updatedWaypoint.id].init(updatedWaypoint);
+    console.log('newest', this.#waypointPresenter[updatedWaypoint.id].init(updatedWaypoint));
   };
 
   _onSortTypeChange(sortType) {

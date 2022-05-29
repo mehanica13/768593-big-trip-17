@@ -1,18 +1,14 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeEventDate, humanizeDataSetEventDate, humanizeDataSetEventTime, humanizeDateTime, getTimeDifference} from '../utils/waypoint.js';
 
-const createWaypointOfferItemTemplate = (offersList, type) => {
-  const x = offersList.find((item) => item.type === type);
-  return x ? x.offers.map((el) => `<li class="event__offer">
-  <span class="event__offer-title">${el.title}</span>
-  &plus;&euro;&nbsp;
-  <span class="event__offer-price">${el.price}</span>
-</li>`).join('') : '';
-};
+const createWaypointOfferItemTemplate = (offersList) => offersList.map((offer) => `<li class="event__offer">
+      <span class="event__offer-title">${offer.title}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${offer.price}</span>
+    </li>`).join('');
 
-const createWaypointTemplate = (waypoint, offersList, destination) => {
-  const { name } = destination;
-  const { type, dateFrom, dateTo, isFavorite, basePrice, } = waypoint;
+const createWaypointTemplate = (waypoint) => {
+  const { type, offers, destination, dateFrom, dateTo, isFavorite, basePrice, } = waypoint;
 
   const dataSetEventDate = (dateFrom !== null) ? humanizeDataSetEventDate(dateFrom) : '';
   const eventDate = (dateFrom !== null) ? humanizeEventDate(dateFrom) : '';
@@ -33,7 +29,7 @@ const createWaypointTemplate = (waypoint, offersList, destination) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${name}</h3>
+        <h3 class="event__title">${type} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${startDataSetEventTime}">${startDateTime}</time>
@@ -46,10 +42,11 @@ const createWaypointTemplate = (waypoint, offersList, destination) => {
           &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
         </p>
 
-        ${offersList.length ? `<h4 class="visually-hidden">Offers:</h4>
+        ${offers ? `<h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${createWaypointOfferItemTemplate(offersList, type)}
+          ${createWaypointOfferItemTemplate(offers)}
         </ul>` : ''}
+
 
         <button class="event__favorite-btn ${favoriteClassName}" type="button">
           <span class="visually-hidden">Add to favorite</span>
@@ -67,18 +64,14 @@ const createWaypointTemplate = (waypoint, offersList, destination) => {
 
 export default class WaypointView extends AbstractView {
   #waypoint = null;
-  #offers = null;
-  #destination = null;
 
-  constructor(waypoint, offers, destination) {
+  constructor(waypoint) {
     super();
     this.#waypoint = waypoint;
-    this.#offers = offers;
-    this.#destination = destination;
   }
 
   get template() {
-    return createWaypointTemplate(this.#waypoint, this.#offers, this.#destination);
+    return createWaypointTemplate(this.#waypoint);
   }
 
   setRollupBtnClickHandler = (callback) => {

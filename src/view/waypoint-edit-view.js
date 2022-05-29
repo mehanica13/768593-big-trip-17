@@ -2,25 +2,25 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { Destinations, WaypointTypes } from '../const.js';
 import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
 
+// в дальнешем эти данные будем получать с сервера
+import { destinations } from '../mock/waypoint.js';
+import { getRandomInteger } from '../utils/common.js';
+
 const BLANK_WAYPOINT = {
   basePrice: null,
   dateFrom: null,
   dateTo: null,
-  destination: [],
+  destination: {
+    description: 'Lorem ipsum',
+    name: 'Lorem',
+    pictures: [],
+  },
   isFavorite: false,
-  offers: [],
+  offers: {
+    type: 'taxi',
+    offers: {},
+  },
   type: [],
-};
-
-const BLANK_OFFER = {
-  type: 'taxi',
-  offers: [],
-};
-
-const BLANK_DESTINATION = {
-  description: 'Lorem ipsum',
-  name: 'Lorem',
-  pictures: [],
 };
 
 const createEventTypeTemplate = (chosenType) => WaypointTypes.map((type) => `<div class="event__type-item">
@@ -30,31 +30,33 @@ const createEventTypeTemplate = (chosenType) => WaypointTypes.map((type) => `<di
 
 const createDestinationListTemplate = (cites) => cites.map((city) => `<option value="${city}"></option>`).join('');
 
-const createOfferTemplate = (offersList, state) => {
-  const offerItem = offersList.find((item) => item.type === state.type);
+const createOfferTemplate = (offers) => {
+  if (!offers.length) {
+    return '';
+  }
+  const isChecked  = getRandomInteger(0, 1) ? 'checked' : '';
 
-  return offerItem ? offerItem.offers.map((offer) => `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerItem.type}-1" type="checkbox" name="event-offer-${offerItem.type}" ${state.offers.includes(offer.id) ? 'checked' : ''}>
-      <label class="event__offer-label" for="event-offer-${offerItem.type}-1">
+  return offers.map((offer) => `<div class="event__offer-selector">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offers.type}-1" type="checkbox" name="event-offer-${offers.type}" ${isChecked}>
+      <label class="event__offer-label" for="event-offer-${offers.type}-1">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
       </label>
     </div>`
-  ).join('') : '';
+  ).join('');
 };
 const createDestinationDesc = (description) => description ? `<p class="event__destination-description">${description}</p>` : '';
 
 const createImageTemplate = (pictures) => pictures.map((img) => `<img class="event__photo" src="img/photos/${img.src}.jpg" alt="Event photo">`).join('');
 
-const createWaypointEditTemplate = (state, offersList, destination) => {
-  const { type, dateFrom, dateTo, basePrice } = state;
-  const { description, name, pictures } = destination;
+const createWaypointEditTemplate = (state) => {
+  // console.log(state);
+  const { type, offers, destination ,dateFrom, dateTo, basePrice } = state;
   const startTime = (dateFrom !== null) ? humanizeDateToCustomFormat(dateFrom) : '';
   const endTime = (dateTo !== null) ? humanizeDateToCustomFormat(dateTo) : '';
 
   return (
-
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
@@ -77,7 +79,7 @@ const createWaypointEditTemplate = (state, offersList, destination) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${createDestinationListTemplate(Destinations)}
             </datalist>
@@ -106,20 +108,20 @@ const createWaypointEditTemplate = (state, offersList, destination) => {
           </button>
         </header>
         <section class="event__details">
-          ${offersList.type === offersList.type ?  `<section class="event__section  event__section--offers">
+          ${offers.type === offers.type ?  `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-              ${createOfferTemplate(offersList, state)}
+              ${createOfferTemplate(offers)}
             </div>
           </section>` : ''}
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            ${createDestinationDesc(description)}
+            ${createDestinationDesc(destination.description)}
 
             <div class="event__photos-container">
               <div class="event__photos-tape">
-              ${createImageTemplate(pictures)}
+              ${createImageTemplate(destination.pictures)}
               </div>
             </div>
           </section>
@@ -130,22 +132,15 @@ const createWaypointEditTemplate = (state, offersList, destination) => {
 };
 
 export default class WaypointEditView extends AbstractStatefulView {
-  #waypoint = null;
-  #offers = null;
-  #destination = null;
-
-  constructor(waypoint = BLANK_WAYPOINT, offers = BLANK_OFFER, destination = BLANK_DESTINATION) {
+  constructor(waypoint = BLANK_WAYPOINT) {
     super();
-    this.#waypoint = waypoint;
-    this.#offers = offers;
-    this.#destination = destination;
     this._state = WaypointEditView.parseWaypointToState(waypoint);
 
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createWaypointEditTemplate(this._state, this.#offers, this.#destination);
+    return createWaypointEditTemplate(this._state);
   }
 
   setFormSubmitHandler = (callback) => {
@@ -155,7 +150,7 @@ export default class WaypointEditView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(WaypointEditView.parseStateToWaypoint(this._state), this.#offers, this.#destination);
+    this._callback.formSubmit(WaypointEditView.parseStateToWaypoint(this._state));
   };
 
   setEditClickHandler = (callback) => {
@@ -171,7 +166,7 @@ export default class WaypointEditView extends AbstractStatefulView {
   _restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
-    this.setEditClickHandler(this._callback.rollUpClick);
+    this.setEditClickHandler(this._callback.editClick);
   };
 
   #typeListClickHandler = (evt) => {
@@ -183,27 +178,47 @@ export default class WaypointEditView extends AbstractStatefulView {
     }
   };
 
-  #setInnerHandlers = () => {
-    this.element.querySelector('.event__type-list').addEventListener('click', this.#typeListClickHandler);
+  #destinationChangeHandler = (evt) => {
+    const currentDestination = destinations.find((destination) => destination.name === evt.currentTarget.value);
+    if (currentDestination) {
+      this.updateElement({
+        destination: currentDestination,
+      });
+    }
   };
 
-  static parseWaypointToState = (waypoint) => ({...waypoint,
-    type: waypoint.type,
-    destination: waypoint.destination,
-  });
+  reset = (waypoint) => {
+    this.updateElement(WaypointEditView.parseWaypointToState(waypoint));
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-list').addEventListener('click', this.#typeListClickHandler);
+    this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
+  };
+
+  static parseWaypointToState = (waypoint) => {
+    const state = Object.assign({}, waypoint);
+    return state;
+  };
+  // ({...waypoint,
+  //   type: waypoint.type,
+  //   destination: waypoint.destination,
+  // });
 
   static parseStateToWaypoint = (state) => {
     const waypoint = {...state};
+    // const waypoint = Object.assign({}, state);
 
-    if (!waypoint.type) {
-      waypoint.type = '';
-    }
+    // if (!waypoint.type) {
+    //   waypoint.type = '';
+    // }
 
-    if (!waypoint.destination) {
-      waypoint.destination = '';
-    }
+    // if (!waypoint.destination) {
+    //   waypoint.destination = '';
+    // }
 
-    delete waypoint.type;
+    // delete waypoint.type;
+    // delete waypoint.destination;
     return waypoint;
   };
 }
