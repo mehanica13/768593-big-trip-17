@@ -32,10 +32,10 @@ export default class WaypointPresenter {
     this.#waypointComponent  = new WaypointView(waypoint);
     this.#waypointEditComponent = new WaypointEditView(waypoint);
 
-    this.#waypointComponent.setRollupBtnClickHandler(this.#replaceWaypointToForm);
+    this.#waypointComponent.setRollupBtnClickHandler(this.#handleRollupBtnClick);
     this.#waypointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
 
-    this.#waypointEditComponent.setEditClickHandler(this.#handleRollupBtnClick);
+    this.#waypointEditComponent.setEditClickHandler(this.#handleEditClick);
     this.#waypointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
 
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
@@ -86,13 +86,12 @@ export default class WaypointPresenter {
       evt.preventDefault();
       this.#waypointEditComponent.reset(this.#waypoint);
       this.#replaceFormToWaypoint();
-      document.removeEventListener('keydown', this.this.#onEscKeyDown);
     }
   };
 
   #handleRollupBtnClick = () => {
-    this.#waypointEditComponent.reset(this.#waypoint);
-    this.#replaceFormToWaypoint();
+    console.log('123');
+    this.#replaceWaypointToForm();
   };
 
   #handleFavoriteClick = () => {
@@ -105,6 +104,7 @@ export default class WaypointPresenter {
   };
 
   #handleEditClick = () => {
+    this.#waypointEditComponent.reset(this.#waypoint);
     this.#replaceFormToWaypoint();
   };
 }

@@ -107,10 +107,7 @@ export default class AllElPresenter {
 
   #handleWaypointChange = (updatedWaypoint) => {
     this.#allWaypoints = updateItem(this.#allWaypoints, updatedWaypoint);
-    console.log('new1',this.#waypointPresenter[updatedWaypoint.id]);
-    console.log(updatedWaypoint);
     this.#waypointPresenter[updatedWaypoint.id].init(updatedWaypoint);
-    console.log('newest', this.#waypointPresenter[updatedWaypoint.id].init(updatedWaypoint));
   };
 
   _onSortTypeChange(sortType) {
