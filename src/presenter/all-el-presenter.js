@@ -57,9 +57,10 @@ export default class AllElPresenter {
   }
 
   #renderWaypoint = (waypoint) => {
+    this.#currentSortType = SortType.DEFAULT;
     const waypointPresenter = new WaypointPresenter(this.#waypointsContainer.element, this.#handleWaypointChange, this.#handleModeChange);
     waypointPresenter.init( waypoint);
-    this.#waypointPresenter[waypoint.id] = waypointPresenter;
+    this.#waypointPresenter.set(waypoint.id, waypointPresenter);
   };
 
   #renderWaypointList() {
@@ -107,7 +108,7 @@ export default class AllElPresenter {
 
   #handleWaypointChange = (updatedWaypoint) => {
     this.#allWaypoints = updateItem(this.#allWaypoints, updatedWaypoint);
-    this.#waypointPresenter[updatedWaypoint.id].init(updatedWaypoint);
+    this.#waypointPresenter.get(updatedWaypoint.id).init(updatedWaypoint);
   };
 
   _onSortTypeChange(sortType) {

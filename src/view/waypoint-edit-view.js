@@ -1,6 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { Destinations, WaypointTypes } from '../const.js';
 import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
+import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 // в дальнешем эти данные будем получать с сервера
 import { destinations } from '../mock/waypoint.js';
@@ -134,14 +137,31 @@ const createWaypointEditTemplate = (state) => {
 export default class WaypointEditView extends AbstractStatefulView {
   constructor(waypoint = BLANK_WAYPOINT) {
     super();
+    this._dateFromPicker = null;
+    this._dateToPicker = null;
     this._state = WaypointEditView.parseWaypointToState(waypoint);
 
     this.#setInnerHandlers();
+    this.#setDatepicker();
   }
 
   get template() {
     return createWaypointEditTemplate(this._state);
   }
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this._dateFromPicker) {
+      this._dateFromPicker.destroy();
+      this._dateFromPicker = null;
+    }
+
+    if (this._dateToPicker) {
+      this._dateToPicker.destroy();
+      this._dateToPicker = null;
+    }
+  };
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
@@ -164,6 +184,7 @@ export default class WaypointEditView extends AbstractStatefulView {
   };
 
   _restoreHandlers = () => {
+    this.#setDatepicker();
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditClickHandler(this._callback.editClick);
@@ -191,6 +212,41 @@ export default class WaypointEditView extends AbstractStatefulView {
     this.updateElement(WaypointEditView.parseWaypointToState(waypoint));
   };
 
+  #setDatepicker = () => {
+    this._dateFromPicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: dayjs(this._state.dateFrom).format('DD/MM/YY HH:mm'),
+        onChange: this.#dateFromChangeHandler
+      }
+    );
+
+    this._dateToPicker = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        minDate: dayjs(this._state.dateFrom).format('DD/MM/YY HH:mm'),
+        defaultDate: dayjs(this._state.dateTo).format('DD/MM/YY HH:mm'),
+        onChange: this.#dateToChangeHandler
+      }
+    );
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: dayjs(userDate).format('YYYY-MM-DDTHH:mm'),
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: dayjs(userDate).format('YYYY-MM-DDTHH:mm')
+    });
+  };
+
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#typeListClickHandler);
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
@@ -200,25 +256,9 @@ export default class WaypointEditView extends AbstractStatefulView {
     const state = Object.assign({}, waypoint);
     return state;
   };
-  // ({...waypoint,
-  //   type: waypoint.type,
-  //   destination: waypoint.destination,
-  // });
 
   static parseStateToWaypoint = (state) => {
     const waypoint = {...state};
-    // const waypoint = Object.assign({}, state);
-
-    // if (!waypoint.type) {
-    //   waypoint.type = '';
-    // }
-
-    // if (!waypoint.destination) {
-    //   waypoint.destination = '';
-    // }
-
-    // delete waypoint.type;
-    // delete waypoint.destination;
     return waypoint;
   };
 }

@@ -90,7 +90,6 @@ export default class WaypointPresenter {
   };
 
   #handleRollupBtnClick = () => {
-    console.log('123');
     this.#replaceWaypointToForm();
   };
 
