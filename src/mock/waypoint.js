@@ -17,11 +17,39 @@ const getPhotos = () => {
   return photos;
 };
 
-export const generateDestination = () => ({
-  description: getRandomArrayItem(DestinationDescriptions),
-  name: getRandomArrayItem(Destinations),
-  pictures: getPhotos(),
-});
+const generateDestinations = () => {
+  const destinationList = [];
+
+  Destinations.forEach((destination) => {
+    destinationList.push({
+      name: destination,
+      description: getRandomArrayItem(DestinationDescriptions),
+      pictures: getPhotos(),
+    });
+  });
+
+  return destinationList;
+};
+
+const generateOffers = () => {
+  const offers = [];
+  WaypointTypes.forEach((type) => {
+    offers.push({
+      type: type,
+      offers: shuffleArray(Offers).slice(0, getRandomInteger(0, OFFER_COUNT)),
+    });
+  });
+
+  return offers;
+};
+
+export const destinations = generateDestinations();
+
+// export const generateDestination = () => ({
+//   description: getRandomArrayItem(DestinationDescriptions),
+//   name: getRandomArrayItem(Destinations),
+//   pictures: getPhotos(),
+// });
 
 export const generateOffersList = () => ({
   type: getRandomArrayItem(WaypointTypes),
@@ -30,15 +58,18 @@ export const generateOffersList = () => ({
 
 export const generateWaypoint = () => {
   const startDate = generateRandomStartDate();
+  const type = getRandomArrayItem(WaypointTypes);
+  const offers = generateOffers();
 
   return ({
     basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
     dateFrom: startDate,
     dateTo: generateRandomFutureDate(startDate),
-    destination: [getRandomInteger(0, Destinations.length)],
-    isFavorite: Boolean(getRandomInteger(0, 1)),
-    offers: [getRandomInteger(0, Offers.length)],
-    type: getRandomArrayItem(WaypointTypes),
+    destination: getRandomArrayItem(destinations),
     id: nanoid(),
+    isFavorite: Boolean(getRandomInteger(0, 1)),
+    offers: offers.find((offer) => offer.type === type).offers,
+    // offers: [getRandomInteger(0, Offers.length)],
+    type: type,
   });
 };
