@@ -1,7 +1,7 @@
 import { render } from '../framework/render.js';
 import { SortType } from '../const.js';
 import { sortByDate, sortByPrice, sortByTime, filter } from '../utils/waypoint.js';
-import { updateItem } from '../utils/common.js';
+// import { updateItem } from '../utils/common.js';
 import SortView from '../view/sort-view.js';
 import MainContentView from '../view/main-content-view.js';
 import NoWaypointView from '../view/no-waypoint-view.js';
@@ -15,7 +15,6 @@ export default class AllElPresenter {
   #sortingComponent = null;
   #currentSortType = null;
   #waypointsContainer = new MainContentView();
-  #allWaypoints = [];
   #waypointPresenter = new Map ();
 
   constructor(waypointsModel, filterModel) {
@@ -28,16 +27,16 @@ export default class AllElPresenter {
   }
 
   init = () => {
-    this.#allWaypoints = [...this.#waypointsModel.waypoints];
-
     this.#filterModel.addObserver(this._onFilterChange);
 
     this.#renderMainContent();
   };
 
-  #getActualWaypoints() {
+
+  get actualWaypoints() {
     const filterType = this.#filterModel.getFilter();
-    const filteredWaypoints = filter[filterType](this.#allWaypoints);
+    const waypoints = this.#waypointsModel.waypoints;
+    const filteredWaypoints = filter[filterType](waypoints);
     switch (this.#currentSortType) {
       case SortType.DEFAULT:
         return filteredWaypoints.sort(sortByDate);
@@ -63,11 +62,9 @@ export default class AllElPresenter {
     this.#waypointPresenter.set(waypoint.id, waypointPresenter);
   };
 
-  #renderWaypointList() {
-    for (let i = 0; i < this.#getActualWaypoints(this.#allWaypoints).length; i++) {
-      this.#renderWaypoint(this.#getActualWaypoints(this.#allWaypoints)[i]);
-    }
-  }
+  #renderWaypointList = (waypoints) => {
+    waypoints.forEach((waypoint) => this.#renderWaypoint(waypoint));
+  };
 
   #clearWaypointList = () => {
     this.#waypointPresenter.forEach((presenter) => presenter.destroy());
@@ -89,7 +86,7 @@ export default class AllElPresenter {
   }
 
   #renderMainContent = () => {
-    const waypoints = this.#getActualWaypoints();
+    const waypoints = this.actualWaypoints;
     const waypointsCount = waypoints.length;
 
     if (!waypointsCount) {
@@ -97,8 +94,8 @@ export default class AllElPresenter {
     } else {
       this.#renderSortView();
       this.#renderWaypointsContainer();
-      this.#allWaypoints.sort(sortByDate);
-      this.#renderWaypointList();
+      // this.#allWaypoints.sort(sortByDate);
+      this.#renderWaypointList(this.actualWaypoints);
     }
   };
 
@@ -107,7 +104,8 @@ export default class AllElPresenter {
   };
 
   #handleWaypointChange = (updatedWaypoint) => {
-    this.#allWaypoints = updateItem(this.#allWaypoints, updatedWaypoint);
+    // this.#allWaypoints = updateItem(this.#allWaypoints, updatedWaypoint);
+    // Здесь будем вызывать обновление модели
     this.#waypointPresenter.get(updatedWaypoint.id).init(updatedWaypoint);
   };
 
@@ -115,14 +113,14 @@ export default class AllElPresenter {
     if (this.#currentSortType === sortType) {
       return;
     }
-    this.#currentSortType = sortType;
 
+    this.#currentSortType = sortType;
     this.#clearWaypointList();
-    this.#renderWaypointList();
+    this.#renderWaypointList(this.actualWaypoints);
   }
 
   _onFilterChange() {
     this.#clearWaypointList();
-    this.#renderWaypointList();
+    this.#renderWaypointList(this.actualWaypoints);
   }
 }
