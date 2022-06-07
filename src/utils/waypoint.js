@@ -1,10 +1,8 @@
 import dayjs from 'dayjs';
 import { getRandomInteger } from './common';
 import {TimeInMs, TIME_NUMB, timeMaxGap, FilterType } from '../const';
-import mrFlatpickr from 'flatpickr';
-export { mrFlatpickr };
 
-const generateRandomStartDate = () => dayjs('2022-05-04')
+const generateRandomStartDate = () => dayjs('2022-05-14')
   .add(getRandomInteger(0, timeMaxGap.days), 'day')
   .add(getRandomInteger(0, timeMaxGap.hours), 'hour')
   .add(getRandomInteger(0, timeMaxGap.minutes), 'minute')

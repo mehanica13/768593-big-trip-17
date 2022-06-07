@@ -1,6 +1,6 @@
 import WaypointEditView from '../view/waypoint-edit-view.js';
 import { nanoid } from 'nanoid';
-import { render, remove } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
 
 
@@ -14,18 +14,18 @@ export default class WaypointNewPresenter {
     this.#changeData = changeData;
   }
 
-  init = (waypoint) => {
+  init = () => {
     if (this.#waypointEditComponent !== null) {
       return;
     }
 
-    this.#waypointEditComponent = new WaypointEditView(waypoint);
+    this.#waypointEditComponent = new WaypointEditView();
 
     this.#waypointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
     this.#waypointEditComponent.setDeleteClickHandler(this.#handleDeleteClick);
-    this.#waypointEditComponent.setEditCloseClickHandler(this.#handleCloseEditClick);
+    this.#waypointEditComponent.setEditClickHandler(this.#handleCloseEditClick);
 
-    render(this.#waypointEditComponent, this.#waypointsContainer);
+    render(this.#waypointEditComponent, this.#waypointsContainer.element, RenderPosition.AFTERBEGIN);
 
     document.addEventListener('keydown', this.#onEscKeyDown);
   };

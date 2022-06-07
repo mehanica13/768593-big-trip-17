@@ -45,19 +45,16 @@ export default class FilterView extends AbstractView {
 
     this.#currentFilterType = currentFilterType;
     this.#waypoints = waypoints;
-
-    this._filterTypeChangeHandler = this._filterTypeChangeHandler.bind(this);
   }
 
   get template() {
     return createFilterTemplate(this.#waypoints, this.#currentFilterType);
   }
 
-  setFilterTypeChangeHandler(callback) {
+  setFilterTypeChangeHandler = (callback) => {
     this._callback.filterTypeChange = callback;
-
     this.element.addEventListener('change', this._filterTypeChangeHandler);
-  }
+  };
 
   _filterTypeChangeHandler = (evt) => {
     if (evt.target.tagName === 'INPUT') {
