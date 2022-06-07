@@ -32,18 +32,19 @@ const generateDestinations = () => {
 };
 
 const generateOffers = () => {
-  const offers = [];
+  const offersList = [];
   WaypointTypes.forEach((type) => {
-    offers.push({
+    offersList.push({
       type: type,
       offers: shuffleArray(Offers).slice(0, getRandomInteger(0, OFFER_COUNT)),
     });
   });
 
-  return offers;
+  return offersList;
 };
 
 export const destinations = generateDestinations();
+export const offers1 = generateOffers();
 
 // export const generateDestination = () => ({
 //   description: getRandomArrayItem(DestinationDescriptions),
@@ -59,7 +60,6 @@ export const generateOffersList = () => ({
 export const generateWaypoint = () => {
   const startDate = generateRandomStartDate();
   const type = getRandomArrayItem(WaypointTypes);
-  const offers = generateOffers();
 
   return ({
     basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
@@ -68,8 +68,7 @@ export const generateWaypoint = () => {
     destination: getRandomArrayItem(destinations),
     id: nanoid(),
     isFavorite: Boolean(getRandomInteger(0, 1)),
-    offers: offers.find((offer) => offer.type === type).offers,
-    // offers: [getRandomInteger(0, Offers.length)],
+    offers: offers1.find((offer) => offer.type === type).offers,
     type: type,
   });
 };

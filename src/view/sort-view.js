@@ -4,7 +4,7 @@ import { SortType } from '../const.js';
 const createSortingTemplate = (currentSortType) => (
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
     <div class="trip-sort__item  trip-sort__item--day">
-      <input id="sort-day" class="trip-sort__input  visually-hidden" data-sort-type="${SortType.DEFAULT}" type="radio" name="trip-sort" value="sort-day" ${currentSortType === SortType.DAY ? 'checked' : ''}>
+      <input id="sort-day" class="trip-sort__input  visually-hidden" data-sort-type="${SortType.DEFAULT}" type="radio" name="trip-sort" value="sort-day" ${currentSortType === SortType.DEFAULT ? 'checked' : ''}>
       <label class="trip-sort__btn" for="sort-day">Day</label>
     </div>
 
@@ -31,22 +31,23 @@ const createSortingTemplate = (currentSortType) => (
 );
 
 export default class SortView extends AbstractView {
+  #currentSortType = null;
+
   constructor(currentSortType) {
     super();
 
-    this._currentSortType = currentSortType;
-    this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
+    this.#currentSortType = currentSortType;
   }
 
   get template() {
-    return createSortingTemplate(this._currentSortType);
+    return createSortingTemplate(this.#currentSortType);
   }
 
-  setSortTypeChangeHandler(callback) {
+  setSortTypeChangeHandler = (callback) => {
     this._callback.sortTypeChange = callback;
 
     this.element.addEventListener('change', this._sortTypeChangeHandler);
-  }
+  };
 
   _sortTypeChangeHandler = (evt) => {
     if (evt.target.tagName !== 'INPUT') {

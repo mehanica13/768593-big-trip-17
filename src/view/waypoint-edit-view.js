@@ -1,29 +1,23 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { Destinations, WaypointTypes } from '../const.js';
+import { DEFAULT_TIME, Destinations, WaypointTypes } from '../const.js';
 import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
 import dayjs from 'dayjs';
+import he from 'he';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 // в дальнешем эти данные будем получать с сервера
-import { destinations } from '../mock/waypoint.js';
-import { getRandomInteger } from '../utils/common.js';
+import { destinations, offers1 } from '../mock/waypoint.js';
+import { getRandomInteger, isNumber } from '../utils/common.js';
 
 const BLANK_WAYPOINT = {
-  basePrice: null,
-  dateFrom: null,
-  dateTo: null,
-  destination: {
-    description: 'Lorem ipsum',
-    name: 'Lorem',
-    pictures: [],
-  },
+  basePrice: 0,
+  dateFrom: '',
+  dateTo: '',
+  destination: destinations.find((destination) => destination.name === Destinations[0]),
   isFavorite: false,
-  offers: {
-    type: 'taxi',
-    offers: {},
-  },
-  type: [],
+  offers: offers1.find((offer) => offer.type === WaypointTypes[0]).offers,
+  type: 'taxi',
 };
 
 const createEventTypeTemplate = (chosenType) => WaypointTypes.map((type) => `<div class="event__type-item">
@@ -54,7 +48,6 @@ const createDestinationDesc = (description) => description ? `<p class="event__d
 const createImageTemplate = (pictures) => pictures.map((img) => `<img class="event__photo" src="img/photos/${img.src}.jpg" alt="Event photo">`).join('');
 
 const createWaypointEditTemplate = (state) => {
-  // console.log(state);
   const { type, offers, destination ,dateFrom, dateTo, basePrice } = state;
   const startTime = (dateFrom !== null) ? humanizeDateToCustomFormat(dateFrom) : '';
   const endTime = (dateTo !== null) ? humanizeDateToCustomFormat(dateTo) : '';
@@ -80,9 +73,9 @@ const createWaypointEditTemplate = (state) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${type}
+              ${type !== null ? type : ''}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(destination.name)}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${createDestinationListTemplate(Destinations)}
             </datalist>
@@ -101,7 +94,7 @@ const createWaypointEditTemplate = (state) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -120,11 +113,11 @@ const createWaypointEditTemplate = (state) => {
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            ${createDestinationDesc(destination.description)}
+            ${destination ? createDestinationDesc(destination.description) : ''}
 
             <div class="event__photos-container">
               <div class="event__photos-tape">
-              ${createImageTemplate(destination.pictures)}
+              ${destination ? createImageTemplate(destination.pictures) : ''}
               </div>
             </div>
           </section>
@@ -173,6 +166,16 @@ export default class WaypointEditView extends AbstractStatefulView {
     this._callback.formSubmit(WaypointEditView.parseStateToWaypoint(this._state));
   };
 
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(WaypointEditView.parseStateToWaypoint(this._state));
+  };
+
   setEditClickHandler = (callback) => {
     this._callback.editClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
@@ -188,6 +191,7 @@ export default class WaypointEditView extends AbstractStatefulView {
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditClickHandler(this._callback.editClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
   #typeListClickHandler = (evt) => {
@@ -206,6 +210,18 @@ export default class WaypointEditView extends AbstractStatefulView {
         destination: currentDestination,
       });
     }
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+
+    if (!isNumber(evt.target.value)) {
+      return;
+    }
+
+    this.updateElement({
+      basePrice: evt.target.value
+    });
   };
 
   reset = (waypoint) => {
@@ -236,20 +252,26 @@ export default class WaypointEditView extends AbstractStatefulView {
   };
 
   #dateFromChangeHandler = ([userDate]) => {
+    // если пользователь выберет дату начала после даты окончания, дата окончания должна обновиться
+    const isFromAfterTo = userDate > dayjs(this._state.dateTo).toDate();
+
     this.updateElement({
       dateFrom: dayjs(userDate).format('YYYY-MM-DDTHH:mm'),
+      dateTo: isFromAfterTo ? dayjs(userDate).add(DEFAULT_TIME, 'hour') : this._state.dateTo,
     });
   };
 
   #dateToChangeHandler = ([userDate]) => {
     this.updateElement({
-      dateTo: dayjs(userDate).format('YYYY-MM-DDTHH:mm')
+      dateFrom: this._state.dateFrom,
+      dateTo: dayjs(userDate).format('YYYY-MM-DDTHH:mm'),
     });
   };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#typeListClickHandler);
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__field-group--price').addEventListener('input', this.#priceInputHandler);
   };
 
   static parseWaypointToState = (waypoint) => {

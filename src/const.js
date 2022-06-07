@@ -3,6 +3,7 @@ const MIN_PRICE = 20;
 const MAX_PRICE = 200;
 const TIME_NUMB = 10;
 const OFFER_COUNT = 5;
+const DEFAULT_TIME = 1;
 
 const TimeInMs = {
   MINS_IN_HOUR: 60,
@@ -16,14 +17,22 @@ const timeMaxGap = {
   days: 30,
 };
 
+const UserAction = {
+  UPDATE_WAYPOINT: 'UPDATE_WAYPOINT',
+  ADD_WAYPOINT: 'ADD_WAYPOINT',
+  DELETE_WAYPOINT: 'DELETE_WAYPOINT'
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR'
+};
+
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PAST: 'past',
-};
-
-const UpdateType = {
-  ALL: 'ALL'
 };
 
 const SortType = {
@@ -88,4 +97,4 @@ const Offers = [
   }
 ];
 
-export { NUMBER_OF_POINT, WaypointTypes, TimeInMs, TIME_NUMB, timeMaxGap, Destinations, MIN_PRICE, MAX_PRICE, DestinationDescriptions, Offers, OFFER_COUNT, FilterType, SortType, UpdateType };
+export { NUMBER_OF_POINT, WaypointTypes, TimeInMs, TIME_NUMB, DEFAULT_TIME, timeMaxGap, Destinations, MIN_PRICE, MAX_PRICE, DestinationDescriptions, Offers, OFFER_COUNT, FilterType, SortType, UpdateType, UserAction, };
