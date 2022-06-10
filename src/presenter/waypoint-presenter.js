@@ -14,7 +14,6 @@ export default class WaypointPresenter {
   #waypointEditComponent = null;
   #changeData = null;
   #changeMode = null;
-
   #waypoint = null;
   #mode = Mode.DEFAULT;
 
@@ -24,16 +23,16 @@ export default class WaypointPresenter {
     this.#changeMode = changeMode;
   }
 
-  init = (waypoint) => {
+  init = (waypoint, offers, destinations) => {
     this.#waypoint = waypoint;
 
     const prevWaypointComponent = this.#waypointComponent;
     const prevWaypointEditComponent = this.#waypointEditComponent;
 
-    this.#waypointComponent  = new WaypointView(waypoint);
-    this.#waypointEditComponent = new WaypointEditView(waypoint);
+    this.#waypointComponent  = new WaypointView(waypoint, offers);
+    this.#waypointEditComponent = new WaypointEditView(waypoint, offers, destinations);
 
-    this.#waypointComponent.setRollupBtnClickHandler(this.#handleRollupBtnClick);
+    this.#waypointComponent.setRollupBtnClickHandler(this.#replaceWaypointToForm);
     this.#waypointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
 
     this.#waypointEditComponent.setEditClickHandler(this.#handleEditClick);
@@ -86,13 +85,8 @@ export default class WaypointPresenter {
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      this.#waypointEditComponent.reset(this.#waypoint);
-      this.#replaceFormToWaypoint();
+      this.resetView();
     }
-  };
-
-  #handleRollupBtnClick = () => {
-    this.#replaceWaypointToForm();
   };
 
   #handleFavoriteClick = () => {
@@ -119,7 +113,6 @@ export default class WaypointPresenter {
   };
 
   #handleEditClick = () => {
-    this.#waypointEditComponent.reset(this.#waypoint);
-    this.#replaceFormToWaypoint();
+    this.resetView();
   };
 }

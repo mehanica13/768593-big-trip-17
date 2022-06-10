@@ -1,18 +1,5 @@
 import dayjs from 'dayjs';
-import { getRandomInteger } from './common';
-import {TimeInMs, TIME_NUMB, timeMaxGap, FilterType } from '../const';
-
-const generateRandomStartDate = () => dayjs('2022-05-14')
-  .add(getRandomInteger(0, timeMaxGap.days), 'day')
-  .add(getRandomInteger(0, timeMaxGap.hours), 'hour')
-  .add(getRandomInteger(0, timeMaxGap.minutes), 'minute')
-  .add(getRandomInteger(0, timeMaxGap.seconds), 'second').format('YYYY-MM-DDTHH:mm');
-
-const generateRandomFutureDate = (dateFrom) => dayjs(dateFrom)
-  .add(getRandomInteger(0, timeMaxGap.days), 'day')
-  .add(getRandomInteger(0, timeMaxGap.hours), 'hour')
-  .add(getRandomInteger(0, timeMaxGap.minutes), 'minute')
-  .add(getRandomInteger(0, timeMaxGap.seconds), 'second').format('YYYY-MM-DDTHH:mm');
+import {TimeInMs, TIME_NUMB, FilterType } from '../const';
 
 const humanizeEventDate = (date) => dayjs(date).format('MMM D');
 const humanizeDataSetEventDate = (date) => dayjs(date).format('YYYY-MM-DD');
@@ -69,4 +56,4 @@ const filter = {
   [FilterType.PAST]: (waypoints) => waypoints.filter((waypoint) => waypoint.dateTo < dayjs().format('YYYY-MM-DDTHH:mm'))
 };
 
-export { generateRandomStartDate, generateRandomFutureDate, humanizeEventDate, humanizeDataSetEventDate, humanizeDataSetEventTime, humanizeDateTime, getTimeDifference, humanizeDateToCustomFormat, sortByDate, sortByPrice, sortByTime, getTimeDifferenceInMins, filter };
+export { humanizeEventDate, humanizeDataSetEventDate, humanizeDataSetEventTime, humanizeDateTime, getTimeDifference, humanizeDateToCustomFormat, sortByDate, sortByPrice, sortByTime, getTimeDifferenceInMins, filter };
