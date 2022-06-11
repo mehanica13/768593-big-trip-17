@@ -2,31 +2,43 @@ import WaypointEditView from '../view/waypoint-edit-view.js';
 import { nanoid } from 'nanoid';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
+import dayjs from 'dayjs';
 
+const generateBlankWaypoint = () => ({
+  basePrice: Number(),
+  dateFrom: dayjs(),
+  dateTo: dayjs(),
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'taxi',
+  newPoint: true
+});
 
 export default class WaypointNewPresenter {
   #waypointsContainer = null;
   #waypointEditComponent = null;
   #changeData = null;
+  #checkWaypointsCountCallback = null;
 
   constructor(waypointsContainer, changeData) {
     this.#waypointsContainer = waypointsContainer;
     this.#changeData = changeData;
   }
 
-  init = () => {
+  init = (callback, offers , destinations) => {
+    this.#checkWaypointsCountCallback = callback;
+
     if (this.#waypointEditComponent !== null) {
       return;
     }
 
-    this.#waypointEditComponent = new WaypointEditView();
+    this.#waypointEditComponent = new WaypointEditView(generateBlankWaypoint(), offers, destinations);
 
     this.#waypointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
     this.#waypointEditComponent.setDeleteClickHandler(this.#handleDeleteClick);
-    this.#waypointEditComponent.setEditClickHandler(this.#handleCloseEditClick);
 
     render(this.#waypointEditComponent, this.#waypointsContainer.element, RenderPosition.AFTERBEGIN);
-
     document.addEventListener('keydown', this.#onEscKeyDown);
   };
 
@@ -34,7 +46,7 @@ export default class WaypointNewPresenter {
     if (this.#waypointEditComponent === null) {
       return;
     }
-
+    this.#checkWaypointsCountCallback?.();
     remove(this.#waypointEditComponent);
     this.#waypointEditComponent = null;
 
@@ -48,24 +60,16 @@ export default class WaypointNewPresenter {
       Object.assign({id: nanoid()},waypoint)
     );
     this.destroy();
-    document.querySelector('.trip-main__event-add-btn').disabled = false;
-  };
-
-  #handleCloseEditClick = () => {
-    this.destroy();
-    document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 
   #handleDeleteClick = () => {
     this.destroy();
-    document.querySelector('.trip-main__event-add-btn').disabled = false;
   };
 
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.destroy();
-      document.querySelector('.trip-main__event-add-btn').disabled = false;
     }
   };
 }

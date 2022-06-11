@@ -1,54 +1,69 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { DEFAULT_TIME, Destinations, WaypointTypes } from '../const.js';
-import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
 import dayjs from 'dayjs';
 import he from 'he';
+import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
+import { DEFAULT_TIME } from '../const.js';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
-// в дальнешем эти данные будем получать с сервера
-import { destinations, offers1 } from '../mock/waypoint.js';
-import { getRandomInteger, isNumber } from '../utils/common.js';
+const createDestinationImageTemplate = (destination) => {
+  const { pictures } = destination;
+  const createImages = (images) => images.reduce((prev, curr) => `${prev}
+      <img class="event__photo" src="${curr.src}" alt="${curr.description}"></img>`, '');
 
-const BLANK_WAYPOINT = {
-  basePrice: 0,
-  dateFrom: '',
-  dateTo: '',
-  destination: destinations.find((destination) => destination.name === Destinations[0]),
-  isFavorite: false,
-  offers: offers1.find((offer) => offer.type === WaypointTypes[0]).offers,
-  type: 'taxi',
-};
-
-const createEventTypeTemplate = (chosenType) => WaypointTypes.map((type) => `<div class="event__type-item">
-  <input id="event-type-${type}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${type === chosenType ? 'checked' : ''}>
-  <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
-</div>`).join('');
-
-const createDestinationListTemplate = (cites) => cites.map((city) => `<option value="${city}"></option>`).join('');
-
-const createOfferTemplate = (offers) => {
-  if (!offers.length) {
-    return '';
-  }
-  const isChecked  = getRandomInteger(0, 1) ? 'checked' : '';
-
-  return offers.map((offer) => `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offers.type}-1" type="checkbox" name="event-offer-${offers.type}" ${isChecked}>
-      <label class="event__offer-label" for="event-offer-${offers.type}-1">
-        <span class="event__offer-title">${offer.title}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offer.price}</span>
-      </label>
+  return (pictures !== []) ? (
+    `<div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${createImages(pictures)}
+      </div>
     </div>`
-  ).join('');
+  ) : '';
 };
-const createDestinationDesc = (description) => description ? `<p class="event__destination-description">${description}</p>` : '';
 
-const createImageTemplate = (pictures) => pictures.map((img) => `<img class="event__photo" src="img/photos/${img.src}.jpg" alt="Event photo">`).join('');
+const createDestinationTemplate = (name, destinationsDate) => {
+  const destination = destinationsDate.find((item) => item.name === name);
+  return (destination) ?
+    `<section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${destination.description}</p>
+      ${createDestinationImageTemplate (destination)}
+    </section>` : '';
+};
 
-const createWaypointEditTemplate = (state) => {
-  const { type, offers, destination ,dateFrom, dateTo, basePrice } = state;
+const createDestinationListTemplate = (names) => names.reduce((prev, curr) => `${prev}
+<option value="${curr.name}"></option>`, '');
+
+const createOfferBtnsTemplate = (type, offers, offersDate, newPoint) => {
+  const index = offersDate.findIndex((item) => item.type === type);
+  const targetOffers = offersDate[index].offers;
+
+  return targetOffers.map((offer) => `<div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${offer.id}"
+          type="checkbox" data-id=${offer.id} name="event-offer-${type}"
+          ${(offers.some((item) => item === offer.id) && !newPoint) ? 'checked' : ''}>
+        <label class="event__offer-label" for="event-offer-${type}-${offer.id}">
+          <span class="event__offer-title">${offer.title}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${offer.price}</span>
+        </label>
+      </div>`).join('');
+};
+
+const createOfferTemplate = (type, offers, offersData, newPoint) => (offers !== []) ? (
+  `<section class="event__section  event__section--offers">
+    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+    <div class="event__available-offers">
+      ${(createOfferBtnsTemplate(type, offers, offersData, newPoint))}
+    </div>
+  </section>`) : '';
+
+const createEventTypeTemplate = (offers) => offers.map((offer) => `<div class="event__type-item">
+    <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}">
+    <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-1">${offer.type}</label>
+  </div>`).join('');
+
+const createWaypointEditTemplate = (state, offersData, destinationsData) => {
+  const { type, offers, destination ,dateFrom, dateTo, basePrice, newPoint } = state;
   const startTime = (dateFrom !== null) ? humanizeDateToCustomFormat(dateFrom) : '';
   const endTime = (dateTo !== null) ? humanizeDateToCustomFormat(dateTo) : '';
 
@@ -66,7 +81,7 @@ const createWaypointEditTemplate = (state) => {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createEventTypeTemplate(type)}
+                ${createEventTypeTemplate(offersData)}
               </fieldset>
             </div>
           </div>
@@ -75,9 +90,9 @@ const createWaypointEditTemplate = (state) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type !== null ? type : ''}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(destination.name)}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" ${(destination) ? `value=${he.encode(destination.name)}` : 'placeholder="choose target city"'} list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createDestinationListTemplate(Destinations)}
+              ${createDestinationListTemplate(destinationsData)}
             </datalist>
           </div>
 
@@ -104,23 +119,8 @@ const createWaypointEditTemplate = (state) => {
           </button>
         </header>
         <section class="event__details">
-          ${offers.type === offers.type ?  `<section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            <div class="event__available-offers">
-              ${createOfferTemplate(offers)}
-            </div>
-          </section>` : ''}
-
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            ${destination ? createDestinationDesc(destination.description) : ''}
-
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-              ${destination ? createImageTemplate(destination.pictures) : ''}
-              </div>
-            </div>
-          </section>
+          ${createOfferTemplate(type, offers, offersData, newPoint)}
+          ${createDestinationTemplate(destination.name, destinationsData)}
         </section>
       </form>
     </li>`
@@ -128,18 +128,21 @@ const createWaypointEditTemplate = (state) => {
 };
 
 export default class WaypointEditView extends AbstractStatefulView {
-  constructor(waypoint = BLANK_WAYPOINT) {
+  #destinationsData = null;
+  #offersData = null;
+
+  constructor(waypoint, offersData, destinationsData) {
     super();
-    this._dateFromPicker = null;
-    this._dateToPicker = null;
     this._state = WaypointEditView.parseWaypointToState(waypoint);
+    this.#offersData = offersData;
+    this.#destinationsData = destinationsData;
 
     this.#setInnerHandlers();
     this.#setDatepicker();
   }
 
   get template() {
-    return createWaypointEditTemplate(this._state);
+    return createWaypointEditTemplate(this._state, this.#offersData, this.#destinationsData);
   }
 
   removeElement = () => {
@@ -177,6 +180,10 @@ export default class WaypointEditView extends AbstractStatefulView {
   };
 
   setEditClickHandler = (callback) => {
+    if(this._state.newPoint) {
+      return;
+    }
+
     this._callback.editClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   };
@@ -195,32 +202,52 @@ export default class WaypointEditView extends AbstractStatefulView {
   };
 
   #typeListClickHandler = (evt) => {
-    if (evt.target.tagName === 'LABEL') {
-      const newType = evt.target.parentElement.querySelector('input').value;
-      this.updateElement({
-        type: newType,
-      });
-    }
-  };
-
-  #destinationChangeHandler = (evt) => {
-    const currentDestination = destinations.find((destination) => destination.name === evt.currentTarget.value);
-    if (currentDestination) {
-      this.updateElement({
-        destination: currentDestination,
-      });
-    }
-  };
-
-  #priceInputHandler = (evt) => {
-    evt.preventDefault();
-
-    if (!isNumber(evt.target.value)) {
+    if(evt.target.tagName !== 'INPUT') {
       return;
     }
 
+    const targetPoint = this.#offersData.find((item) => item.type === evt.target.value);
+    const targetOffersId = targetPoint.offers.map((item) => item.id);
     this.updateElement({
+      type: targetPoint.type,
+      offers: targetOffersId
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    if(evt.target.tagName !== 'INPUT' || evt.target.value === '') {
+      return;
+    }
+
+    const currentDestination = this.#destinationsData.find((destination) => destination.name === evt.target.value);
+    this.updateElement({
+      destination: currentDestination,
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    if(evt.target.tagName !== 'INPUT' || isNaN(Number(evt.target.value)) || Number(evt.target.value) <= 0) {
+      return;
+    }
+    this._setState({
       basePrice: evt.target.value
+    });
+  };
+
+  #checkOffer = (evt) => {
+    if(evt.target.tagName !== 'INPUT') {
+      return;
+    }
+    const id = evt.target.dataset.id;
+    const offers = [...this._state.offers];
+    if(offers.some((item) => item === Number(id))) {
+      const offerIndex = offers.findIndex((item) => item === Number(id));
+      offers.splice(offerIndex, 1);
+    } else {
+      offers.push(Number(id));
+    }
+    this._setState({
+      offers: offers
     });
   };
 
@@ -229,11 +256,16 @@ export default class WaypointEditView extends AbstractStatefulView {
   };
 
   #setDatepicker = () => {
+    if (!this._state.dateFrom || !this._state.dateTo) {
+      return;
+    }
+
     this._dateFromPicker = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
         enableTime: true,
         dateFormat: 'd/m/y H:i',
+        maxDate: dayjs(this._state.dateTo).format('DD/MM/YY HH:mm'),
         defaultDate: dayjs(this._state.dateFrom).format('DD/MM/YY HH:mm'),
         onChange: this.#dateFromChangeHandler
       }
@@ -270,17 +302,28 @@ export default class WaypointEditView extends AbstractStatefulView {
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#typeListClickHandler);
-    this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
-    this.element.querySelector('.event__field-group--price').addEventListener('input', this.#priceInputHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceInputHandler);
+    if(this.element.querySelector('.event__section--offers') !== null) {
+      this.element.querySelector('.event__available-offers').addEventListener('click', this.#checkOffer);
+    }
   };
 
-  static parseWaypointToState = (waypoint) => {
-    const state = Object.assign({}, waypoint);
-    return state;
-  };
+  static parseWaypointToState = (waypoint) => Object.assign({
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,},
+  waypoint);
 
   static parseStateToWaypoint = (state) => {
-    const waypoint = {...state};
+    const waypoint = JSON.parse(JSON.stringify(state));
+    PointerEvent.basePrice = Number(waypoint.basePrice);
+    delete waypoint.isDisabled;
+    delete waypoint.isSaving;
+    delete waypoint.isDeleting;
+    if(waypoint.newPoint) {
+      delete waypoint.newPoint;
+    }
     return waypoint;
   };
 }

@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 const NUMBER_OF_POINT = 14;
 const MIN_PRICE = 20;
 const MAX_PRICE = 200;
@@ -5,16 +7,20 @@ const TIME_NUMB = 10;
 const OFFER_COUNT = 5;
 const DEFAULT_TIME = 1;
 
+const BLANK_WAYPOINT = {
+  basePrice: Number(),
+  dateFrom: dayjs(),
+  dateTo: dayjs(),
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'taxi',
+  newPoint: true
+};
+
 const TimeInMs = {
   MINS_IN_HOUR: 60,
   MINS_IN_DAY: 1440,
-};
-
-const timeMaxGap = {
-  seconds: 60,
-  minutes: 60,
-  hours: 24,
-  days: 30,
 };
 
 const UserAction = {
@@ -26,7 +32,8 @@ const UserAction = {
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  MAJOR: 'MAJOR'
+  MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 const FilterType = {
@@ -97,4 +104,4 @@ const Offers = [
   }
 ];
 
-export { NUMBER_OF_POINT, WaypointTypes, TimeInMs, TIME_NUMB, DEFAULT_TIME, timeMaxGap, Destinations, MIN_PRICE, MAX_PRICE, DestinationDescriptions, Offers, OFFER_COUNT, FilterType, SortType, UpdateType, UserAction, };
+export { NUMBER_OF_POINT, BLANK_WAYPOINT, WaypointTypes, TimeInMs, TIME_NUMB, DEFAULT_TIME, Destinations, MIN_PRICE, MAX_PRICE, DestinationDescriptions, Offers, OFFER_COUNT, FilterType, SortType, UpdateType, UserAction, };
