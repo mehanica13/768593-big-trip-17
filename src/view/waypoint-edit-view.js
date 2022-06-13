@@ -289,7 +289,6 @@ export default class WaypointEditView extends AbstractStatefulView {
   };
 
   #dateFromChangeHandler = ([userDate]) => {
-    // если пользователь выберет дату начала после даты окончания, дата окончания должна обновиться
     const isFromAfterTo = userDate > dayjs(this._state.dateTo).toDate();
 
     this.updateElement({

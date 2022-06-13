@@ -115,20 +115,4 @@ export default class WaypointsModel extends Observable {
 
     return adaptedWaypoint;
   };
-
-  // #adaptToClient = (waypoint) => {
-  //   const adaptedWaypoint = {...waypoint,
-  //     basePrice: waypoint['base_price'],
-  //     dateFrom: waypoint['date_from'] !== null ? new Date(waypoint['date_from']) : waypoint['date_from'],
-  //     dateTo: waypoint['date_to'] !== null ? new Date(waypoint['date_to']) : waypoint['date_to'],
-  //     isFavorite: waypoint['is_favorite']
-  //   };
-
-  //   delete adaptedWaypoint['base_price'];
-  //   delete adaptedWaypoint['date_from'];
-  //   delete adaptedWaypoint['date_to'];
-  //   delete adaptedWaypoint['is_favorite'];
-
-  //   return adaptedWaypoint;
-  // };
 }

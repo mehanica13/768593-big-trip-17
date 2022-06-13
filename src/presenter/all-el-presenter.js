@@ -1,5 +1,5 @@
-import { render, remove } from '../framework/render.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import { SortType, FilterType, UpdateType, UserAction, TimeLimit } from '../const.js';
 import { sortByDate, sortByPrice, sortByTime, filter } from '../utils/waypoint.js';
 import SortView from '../view/sort-view.js';
@@ -8,17 +8,18 @@ import NoWaypointView from '../view/no-waypoint-view.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import WaypointNewPresenter from './new-waypoint-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import TripInfoView from '../view/trip-info-view.js';
 
 const siteTripEventsElement = document.querySelector('.trip-events');
 
 export default class AllElPresenter {
-  #tripContainer = null;
   #tripHeaderContainer = null;
   #waypointsModel = null;
   #filterModel = null;
   #addNewWaypointBtn = null;
   #sortingComponent = null;
   #noWaypointsComponent = null;
+  #tripInfoComponent = null;
   #loadingComponent = new LoadingView();
   #currentSortType = null;
   #waypointsContainer = new MainContentView();
@@ -27,8 +28,7 @@ export default class AllElPresenter {
   #isLoading = true;
   #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
-  constructor(tripContainer, tripHeaderContainer, waypointsModel, filterModel) {
-    this.#tripContainer = tripContainer;
+  constructor( tripHeaderContainer, waypointsModel, filterModel) {
     this.#tripHeaderContainer = tripHeaderContainer;
     this.#waypointsModel = waypointsModel;
     this.#filterModel = filterModel;
@@ -128,6 +128,7 @@ export default class AllElPresenter {
       this.#renderSortView();
       this.#renderWaypointsContainer();
       this.#renderWaypointList(this.actualWaypoints);
+      this.#renderTripInfo();
     }
   };
 
@@ -136,6 +137,7 @@ export default class AllElPresenter {
     this.#waypointPresenter.forEach((presenter) => presenter.destroy());
     this.#waypointPresenter.clear();
 
+    remove(this.#tripInfoComponent);
     remove(this.#sortingComponent);
     remove(this.#noWaypointsComponent);
     remove(this.#loadingComponent);
@@ -143,6 +145,11 @@ export default class AllElPresenter {
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;
     }
+  };
+
+  #renderTripInfo = () => {
+    this.#tripInfoComponent = new TripInfoView(this.#waypointsModel.waypoints, this.#waypointsModel.offers);
+    render(this.#tripInfoComponent, this.#tripHeaderContainer, RenderPosition.AFTERBEGIN);
   };
 
   #handleModeChange = () => {
@@ -211,5 +218,6 @@ export default class AllElPresenter {
     this.#renderSortView();
     this.#renderWaypointsContainer();
     this.#renderWaypointList(this.actualWaypoints);
+    this.#renderTripInfo();
   }
 }
