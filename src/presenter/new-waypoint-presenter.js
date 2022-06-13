@@ -1,5 +1,5 @@
 import WaypointEditView from '../view/waypoint-edit-view.js';
-import { nanoid } from 'nanoid';
+// import { nanoid } from 'nanoid';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
 import dayjs from 'dayjs';
@@ -53,13 +53,31 @@ export default class WaypointNewPresenter {
     document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
+  setSaving = () => {
+    this.#waypointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#waypointEditComponent.shake(resetFormState);
+  };
+
   #handleFormSubmit = (waypoint) => {
     this.#changeData(
       UserAction.ADD_WAYPOINT,
       UpdateType.MINOR,
-      Object.assign({id: nanoid()},waypoint)
+      waypoint,
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
