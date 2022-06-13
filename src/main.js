@@ -7,7 +7,6 @@ import WaypointsApiService from './api.js';
 import { render } from './framework/render.js';
 
 const tripHeaderContainer = document.querySelector('.trip-main');
-const tripContainer = document.querySelector('.trip-events');
 const filtersContainer = document.querySelector('.trip-controls__filters');
 
 const AUTHORIZATION = 'Basic alyona22a04wihoj';
@@ -17,7 +16,7 @@ const newWaypointBtnComponent = new NewWaypointBtnView();
 const filterModel = new FilterModel();
 const waypointsModel = new WaypointsModel(new WaypointsApiService(END_POINT, AUTHORIZATION));
 const filterPresenter = new FilterPresenter(filtersContainer, filterModel, waypointsModel);
-const allElPresenter = new AllElPresenter(tripContainer, tripHeaderContainer, waypointsModel, filterModel);
+const allElPresenter = new AllElPresenter( tripHeaderContainer, waypointsModel, filterModel);
 
 const handleWaypointCreateFormClose = () => {
   newWaypointBtnComponent.element.disabled = false;

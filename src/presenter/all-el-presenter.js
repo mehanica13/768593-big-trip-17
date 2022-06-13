@@ -1,5 +1,6 @@
-import { render, remove } from '../framework/render.js';
-import { SortType, FilterType, UpdateType, UserAction } from '../const.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
+import { SortType, FilterType, UpdateType, UserAction, TimeLimit } from '../const.js';
 import { sortByDate, sortByPrice, sortByTime, filter } from '../utils/waypoint.js';
 import SortView from '../view/sort-view.js';
 import MainContentView from '../view/main-content-view.js';
@@ -7,26 +8,27 @@ import NoWaypointView from '../view/no-waypoint-view.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import WaypointNewPresenter from './new-waypoint-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import TripInfoView from '../view/trip-info-view.js';
 
 const siteTripEventsElement = document.querySelector('.trip-events');
 
 export default class AllElPresenter {
-  #tripContainer = null;
   #tripHeaderContainer = null;
   #waypointsModel = null;
   #filterModel = null;
   #addNewWaypointBtn = null;
   #sortingComponent = null;
   #noWaypointsComponent = null;
+  #tripInfoComponent = null;
   #loadingComponent = new LoadingView();
   #currentSortType = null;
   #waypointsContainer = new MainContentView();
   #waypointPresenter = new Map ();
   #waypointNewPresenter = null;
   #isLoading = true;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
-  constructor(tripContainer, tripHeaderContainer, waypointsModel, filterModel) {
-    this.#tripContainer = tripContainer;
+  constructor( tripHeaderContainer, waypointsModel, filterModel) {
     this.#tripHeaderContainer = tripHeaderContainer;
     this.#waypointsModel = waypointsModel;
     this.#filterModel = filterModel;
@@ -126,6 +128,7 @@ export default class AllElPresenter {
       this.#renderSortView();
       this.#renderWaypointsContainer();
       this.#renderWaypointList(this.actualWaypoints);
+      this.#renderTripInfo();
     }
   };
 
@@ -134,6 +137,7 @@ export default class AllElPresenter {
     this.#waypointPresenter.forEach((presenter) => presenter.destroy());
     this.#waypointPresenter.clear();
 
+    remove(this.#tripInfoComponent);
     remove(this.#sortingComponent);
     remove(this.#noWaypointsComponent);
     remove(this.#loadingComponent);
@@ -143,23 +147,47 @@ export default class AllElPresenter {
     }
   };
 
+  #renderTripInfo = () => {
+    this.#tripInfoComponent = new TripInfoView(this.#waypointsModel.waypoints, this.#waypointsModel.offers);
+    render(this.#tripInfoComponent, this.#tripHeaderContainer, RenderPosition.AFTERBEGIN);
+  };
+
   #handleModeChange = () => {
     this.#waypointNewPresenter.destroy();
     this.#waypointPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_WAYPOINT:
-        this.#waypointsModel.updateWaypoint(updateType, update);
+        this.#waypointPresenter.get(update.id).setSaving();
+        try {
+          await this.#waypointsModel.updateWaypoint(updateType, update);
+        } catch(err) {
+          this.#waypointPresenter.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_WAYPOINT:
-        this.#waypointsModel.addWaypoint(updateType, update);
+        this.#waypointNewPresenter.setSaving();
+        try {
+          await this.#waypointsModel.addWaypoint(updateType, update);
+        } catch(err) {
+          this.#waypointNewPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_WAYPOINT:
-        this.#waypointsModel.deleteWaypoint(updateType, update);
+        this.#waypointPresenter.get(update.id).setDeleting();
+        try {
+          await this.#waypointsModel.deleteWaypoint(updateType, update);
+        } catch(err) {
+          this.waypointPresenter.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   _handleModelEvent(updateType, data) {
@@ -190,5 +218,6 @@ export default class AllElPresenter {
     this.#renderSortView();
     this.#renderWaypointsContainer();
     this.#renderWaypointList(this.actualWaypoints);
+    this.#renderTripInfo();
   }
 }
