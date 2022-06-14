@@ -1,16 +1,16 @@
 import dayjs from 'dayjs';
-import {TimeInMs, TIME_NUMB, FilterType } from '../const';
+import {TimeInMs, TIME_NUMB, FilterType, DataFormat } from '../const';
 
-const humanizeEventDate = (date) => dayjs(date).format('MMM D');
-const humanizeDataSetEventDate = (date) => dayjs(date).format('YYYY-MM-DD');
-const humanizeDataSetEventTime = (date) => dayjs(date).format('YYYY-MM-DDTHH:mm');
-const humanizeDateTime = (date) => dayjs(date).format('HH:mm');
-const humanizeDateToCustomFormat = (date) => dayjs(date).format('DD/MM/YY HH:mm');
+const humanizeEventDate = (date) => dayjs(date).format(DataFormat.MONTH_DAY);
+const humanizeDataSetEventDate = (date) => dayjs(date).format(DataFormat.YEAR_MONTH_DAY);
+const humanizeDataSetEventTime = (date) => dayjs(date).format(DataFormat.YEAR_MONTH_DAY_HOUR_MIN);
+const humanizeDateTime = (date) => dayjs(date).format(DataFormat.HOUR_MIN);
+const humanizeDateToCustomFormat = (date) => dayjs(date).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN);
 
 const getFullTimeNumb = (numb) => numb < TIME_NUMB ? `0${numb}` : numb;
 
 const getTimeDifferenceInMins = (start, end) => {
-  const dateFrom = dayjs(start).format('YYYY-MM-DDTHH:mm');
+  const dateFrom = dayjs(start).format(DataFormat.YEAR_MONTH_DAY_HOUR_MIN);
   const dateTo = dayjs(end);
   return dateTo.diff(dateFrom, 'minutes');
 };

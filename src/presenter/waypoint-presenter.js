@@ -41,7 +41,6 @@ export default class WaypointPresenter {
 
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
       render(this.#waypointComponent, this.#waypointsContainer);
-      // eslint-disable-next-line no-useless-return
       return;
     }
 

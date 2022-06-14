@@ -1,6 +1,9 @@
 const TIME_NUMB = 10;
 const DEFAULT_TIME = 1;
 
+const AUTHORIZATION = 'Basic alyona22a04wihoj';
+const END_POINT = 'https://17.ecmascript.pages.academy/big-trip/';
+
 const TimeInMs = {
   MINS_IN_HOUR: 60,
   MINS_IN_DAY: 1440,
@@ -36,44 +39,13 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
-const Offers = [
-  {
-    id: 1,
-    title: 'Order Uber',
-    price: 20,
-  }, {
-    id: 2,
-    title: 'Add luggage',
-    price: 50,
-  }, {
-    id: 3,
-    title: 'Upgrade to a business class',
-    price: 120,
-  }, {
-    id: 4,
-    title: 'Choose the radio station',
-    price: 60,
-  }, {
-    id: 5,
-    title: 'Switch to comfort',
-    price: 80,
-  }, {
-    id: 6,
-    title: 'Rent a car',
-    price: 200,
-  }, {
-    id: 7,
-    title: 'Add breakfast',
-    price: 50,
-  }, {
-    id: 8,
-    title: 'Book tickets',
-    price: 40,
-  }, {
-    id: 9,
-    title: 'Lunch in city',
-    price: 30,
-  }
-];
+const DataFormat = {
+  DAY_MONTH: 'DD MMM',
+  MONTH_DAY: 'MMM D',
+  HOUR_MIN: 'HH:mm',
+  YEAR_MONTH_DAY: 'YYYY-MM-DD',
+  DAY_MONTH_YEAR_HOUR_MIN: 'DD/MM/YY HH:mm',
+  YEAR_MONTH_DAY_HOUR_MIN: 'YYYY-MM-DDTHH:mm',
+};
 
-export { TimeInMs, TIME_NUMB, DEFAULT_TIME, Offers, FilterType, SortType, UpdateType, UserAction, TimeLimit};
+export { TimeInMs, TIME_NUMB, DEFAULT_TIME, FilterType, SortType, UpdateType, UserAction, TimeLimit, DataFormat, AUTHORIZATION, END_POINT };

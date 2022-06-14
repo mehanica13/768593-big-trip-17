@@ -1,5 +1,4 @@
 import WaypointEditView from '../view/waypoint-edit-view.js';
-// import { nanoid } from 'nanoid';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
 import dayjs from 'dayjs';

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { DataFormat } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const getTripTitle = (waypoints) => {
@@ -14,7 +15,7 @@ const getTripTitle = (waypoints) => {
   }
 };
 
-const getTripDates = (waypoints) => `${dayjs(waypoints[0].dateFrom).format('DD MMM')}&nbsp;&mdash;&nbsp${dayjs(waypoints[waypoints.length - 1].dateTo).format('DD MMM')}`;
+const getTripDates = (waypoints) => `${dayjs(waypoints[0].dateFrom).format(DataFormat.DAY_MONTH)}&nbsp;&mdash;&nbsp${dayjs(waypoints[waypoints.length - 1].dateTo).format(DataFormat.DAY_MONTH)}`;
 
 const getOffersCost = (waypoints, offersData) => {
   const waypointsOffersPrice = [];

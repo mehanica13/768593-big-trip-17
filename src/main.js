@@ -5,12 +5,10 @@ import FilterModel from './model/filter.js';
 import NewWaypointBtnView from './view/new-waypoint-btn-view.js';
 import WaypointsApiService from './api.js';
 import { render } from './framework/render.js';
+import { AUTHORIZATION, END_POINT } from './const.js';
 
 const tripHeaderContainer = document.querySelector('.trip-main');
 const filtersContainer = document.querySelector('.trip-controls__filters');
-
-const AUTHORIZATION = 'Basic alyona22a04wihoj';
-const END_POINT = 'https://17.ecmascript.pages.academy/big-trip/';
 
 const newWaypointBtnComponent = new NewWaypointBtnView();
 const filterModel = new FilterModel();

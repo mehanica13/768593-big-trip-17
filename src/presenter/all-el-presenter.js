@@ -35,11 +35,8 @@ export default class AllElPresenter {
     this.#currentSortType = SortType.DEFAULT;
     this.#waypointNewPresenter = new WaypointNewPresenter(this.#waypointsContainer, this.#handleViewAction, this.#addNewWaypointBtn);
 
-    this._onSortTypeChange = this._onSortTypeChange.bind(this);
-    this._handleModelEvent = this._handleModelEvent.bind(this);
-
-    this.#waypointsModel.addObserver(this._handleModelEvent);
-    this.#filterModel.addObserver(this._handleModelEvent);
+    this.#waypointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init = () => {
@@ -101,11 +98,11 @@ export default class AllElPresenter {
     waypoints.forEach((waypoint) => this.#renderWaypoint(waypoint));
   };
 
-  #renderWaypointsContainer() {
+  #renderWaypointsContainer = () => {
     render(this.#waypointsContainer, siteTripEventsElement);
-  }
+  };
 
-  #renderSortView() {
+  #renderSortView = () => {
     if (this.#sortingComponent !== null) {
       this.#sortingComponent = null;
     }
@@ -113,8 +110,8 @@ export default class AllElPresenter {
     this.#sortingComponent = new SortView(this.#currentSortType);
 
     render(this.#sortingComponent, siteTripEventsElement);
-    this.#sortingComponent.setSortTypeChangeHandler(this._onSortTypeChange);
-  }
+    this.#sortingComponent.setSortTypeChangeHandler(this.#onSortTypeChange);
+  };
 
   #renderTrip = () => {
     if (this.#isLoading) {
@@ -190,7 +187,7 @@ export default class AllElPresenter {
     this.#uiBlocker.unblock();
   };
 
-  _handleModelEvent(updateType, data) {
+  #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#waypointPresenter.get(data.id).init(data);
@@ -209,9 +206,9 @@ export default class AllElPresenter {
         this.#renderTrip();
         break;
     }
-  }
+  };
 
-  _onSortTypeChange(sortType) {
+  #onSortTypeChange = (sortType) => {
     this.#currentSortType = sortType;
 
     this.#clearTrip();
@@ -219,5 +216,5 @@ export default class AllElPresenter {
     this.#renderWaypointsContainer();
     this.#renderWaypointList(this.actualWaypoints);
     this.#renderTripInfo();
-  }
+  };
 }

@@ -73,25 +73,5 @@ export default class WaypointsApiService extends ApiService {
 
     return adaptedWaypoint;
   };
-
-  // #adaptToServer(waypoint) {
-  //   const adaptedWaypoint = Object.assign(
-  //     {},
-  //     waypoint,
-  //     {
-  //       'base_price': Number(waypoint.basePrice),
-  //       'date_from': waypoint.dateFrom instanceof Date ? waypoint.dateFrom.toISOString() : null,
-  //       'date_to': waypoint.dateTo instanceof Date ? waypoint.dateTo.toISOString() : null,
-  //       'is_favorite': waypoint.isFavorite
-  //     }
-  //   );
-
-  //   delete adaptedWaypoint.price;
-  //   delete adaptedWaypoint.dateStart;
-  //   delete adaptedWaypoint.dateEnd;
-  //   delete adaptedWaypoint.isFavorite;
-
-  //   return adaptedWaypoint;
-  // }
 }
 

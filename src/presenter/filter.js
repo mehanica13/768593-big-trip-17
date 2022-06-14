@@ -14,8 +14,6 @@ export default class FilterPresenter {
     this.#filterModel = filterModel;
     this.#waypointsModel = waypointsModel;
 
-    this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
-
     this.#waypointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
@@ -26,7 +24,7 @@ export default class FilterPresenter {
     const prevFilterComponent = this.#filterComponent;
 
     this.#filterComponent = new FilterView(waypoints, this._getFilter());
-    this.#filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
+    this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
       render(this.#filterComponent,this.#filterContainer);
@@ -41,7 +39,7 @@ export default class FilterPresenter {
     this.init();
   };
 
-  _handleFilterTypeChange(filterType) {
+  #handleFilterTypeChange = (filterType) => {
     if (this.#currentFilter === filterType) {
       return;
     }
@@ -49,7 +47,7 @@ export default class FilterPresenter {
     this.#currentFilter = filterType;
 
     this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
-  }
+  };
 
   _getFilter() {
     return this.#filterModel.filter;

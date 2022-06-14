@@ -2,7 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import dayjs from 'dayjs';
 import he from 'he';
 import { humanizeDateToCustomFormat } from '../utils/waypoint.js';
-import { DEFAULT_TIME } from '../const.js';
+import { DataFormat, DEFAULT_TIME } from '../const.js';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
@@ -270,8 +270,8 @@ export default class WaypointEditView extends AbstractStatefulView {
       {
         enableTime: true,
         dateFormat: 'd/m/y H:i',
-        maxDate: dayjs(this._state.dateTo).format('DD/MM/YY HH:mm'),
-        defaultDate: dayjs(this._state.dateFrom).format('DD/MM/YY HH:mm'),
+        maxDate: dayjs(this._state.dateTo).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
+        defaultDate: dayjs(this._state.dateFrom).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
         onChange: this.#dateFromChangeHandler
       }
     );
@@ -281,8 +281,8 @@ export default class WaypointEditView extends AbstractStatefulView {
       {
         enableTime: true,
         dateFormat: 'd/m/y H:i',
-        minDate: dayjs(this._state.dateFrom).format('DD/MM/YY HH:mm'),
-        defaultDate: dayjs(this._state.dateTo).format('DD/MM/YY HH:mm'),
+        minDate: dayjs(this._state.dateFrom).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
+        defaultDate: dayjs(this._state.dateTo).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
         onChange: this.#dateToChangeHandler
       }
     );
@@ -292,7 +292,7 @@ export default class WaypointEditView extends AbstractStatefulView {
     const isFromAfterTo = userDate > dayjs(this._state.dateTo).toDate();
 
     this.updateElement({
-      dateFrom: dayjs(userDate).format('YYYY-MM-DDTHH:mm'),
+      dateFrom: dayjs(userDate).format(DataFormat.YEAR_MONTH_DAY_HOUR_MIN),
       dateTo: isFromAfterTo ? dayjs(userDate).add(DEFAULT_TIME, 'hour') : this._state.dateTo,
     });
   };
@@ -300,7 +300,7 @@ export default class WaypointEditView extends AbstractStatefulView {
   #dateToChangeHandler = ([userDate]) => {
     this.updateElement({
       dateFrom: this._state.dateFrom,
-      dateTo: dayjs(userDate).format('YYYY-MM-DDTHH:mm'),
+      dateTo: dayjs(userDate).format(DataFormat.YEAR_MONTH_DAY_HOUR_MIN),
     });
   };
 
@@ -313,11 +313,7 @@ export default class WaypointEditView extends AbstractStatefulView {
     }
   };
 
-  static parseWaypointToState = (waypoint) => Object.assign({
-    isDisabled: false,
-    isSaving: false,
-    isDeleting: false,},
-  waypoint);
+  static parseWaypointToState = (waypoint) => Object.assign({isDisabled: false, isSaving: false, isDeleting: false,},waypoint);
 
   static parseStateToWaypoint = (state) => {
     const waypoint = JSON.parse(JSON.stringify(state));
