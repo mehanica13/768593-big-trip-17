@@ -164,6 +164,10 @@ export default class WaypointEditView extends AbstractStatefulView {
     }
   };
 
+  reset = (waypoint) => {
+    this.updateElement(WaypointEditView.parseWaypointToState(waypoint));
+  };
+
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
@@ -254,10 +258,6 @@ export default class WaypointEditView extends AbstractStatefulView {
     this._setState({
       offers: offers
     });
-  };
-
-  reset = (waypoint) => {
-    this.updateElement(WaypointEditView.parseWaypointToState(waypoint));
   };
 
   #setDatepicker = () => {
