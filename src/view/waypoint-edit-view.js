@@ -119,7 +119,7 @@ const createWaypointEditTemplate = (state, offersData, destinationsData) => {
 
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
           <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : deleteCancelBtn}</button>
-          <button class="event__rollup-btn" type="button">
+          <button class="event__rollup-btn" type="button" ${newPoint ? 'style=display:none': ''} ${isDisabled ? 'disabled' : ''}>
             <span class="visually-hidden">Open event</span>
           </button>
         </header>
@@ -269,8 +269,7 @@ export default class WaypointEditView extends AbstractStatefulView {
       this.element.querySelector('#event-start-time-1'),
       {
         enableTime: true,
-        dateFormat: 'd/m/y H:i',
-        maxDate: dayjs(this._state.dateTo).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
+        dateFormat: DataFormat.FLATPICKR,
         defaultDate: dayjs(this._state.dateFrom).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
         onChange: this.#dateFromChangeHandler
       }
@@ -280,7 +279,7 @@ export default class WaypointEditView extends AbstractStatefulView {
       this.element.querySelector('#event-end-time-1'),
       {
         enableTime: true,
-        dateFormat: 'd/m/y H:i',
+        dateFormat: DataFormat.FLATPICKR,
         minDate: dayjs(this._state.dateFrom).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
         defaultDate: dayjs(this._state.dateTo).format(DataFormat.DAY_MONTH_YEAR_HOUR_MIN),
         onChange: this.#dateToChangeHandler

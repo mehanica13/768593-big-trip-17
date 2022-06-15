@@ -2,6 +2,7 @@ import { render, replace, remove } from '../framework/render.js';
 import WaypointView from '../view/waypoint-view.js';
 import WaypointEditView from '../view/waypoint-edit-view.js';
 import { UserAction, UpdateType } from '../const.js';
+import { checkEsc } from '../utils/waypoint.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -118,7 +119,7 @@ export default class WaypointPresenter {
   };
 
   #onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (checkEsc(evt)) {
       evt.preventDefault();
       this.resetView();
     }

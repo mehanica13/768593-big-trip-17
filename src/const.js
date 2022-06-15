@@ -46,6 +46,7 @@ const DataFormat = {
   YEAR_MONTH_DAY: 'YYYY-MM-DD',
   DAY_MONTH_YEAR_HOUR_MIN: 'DD/MM/YY HH:mm',
   YEAR_MONTH_DAY_HOUR_MIN: 'YYYY-MM-DDTHH:mm',
+  FLATPICKR: 'd/m/y H:i',
 };
 
 export { TimeInMs, TIME_NUMB, DEFAULT_TIME, FilterType, SortType, UpdateType, UserAction, TimeLimit, DataFormat, AUTHORIZATION, END_POINT };

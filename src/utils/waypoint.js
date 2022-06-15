@@ -56,4 +56,6 @@ const filter = {
   [FilterType.PAST]: (waypoints) => waypoints.filter((waypoint) => waypoint.dateTo < dayjs())
 };
 
-export { humanizeEventDate, humanizeDataSetEventDate, humanizeDataSetEventTime, humanizeDateTime, getTimeDifference, humanizeDateToCustomFormat, sortByDate, sortByPrice, sortByTime, getTimeDifferenceInMins, filter };
+const checkEsc = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
+
+export { humanizeEventDate, humanizeDataSetEventDate, humanizeDataSetEventTime, humanizeDateTime, getTimeDifference, humanizeDateToCustomFormat, sortByDate, sortByPrice, sortByTime, getTimeDifferenceInMins, filter, checkEsc };

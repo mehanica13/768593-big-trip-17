@@ -2,6 +2,7 @@ import WaypointEditView from '../view/waypoint-edit-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
 import dayjs from 'dayjs';
+import { checkEsc } from '../utils/waypoint.js';
 
 const generateBlankWaypoint = () => ({
   basePrice: Number(),
@@ -84,7 +85,7 @@ export default class WaypointNewPresenter {
   };
 
   #onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (checkEsc(evt)) {
       evt.preventDefault();
       this.destroy();
     }
