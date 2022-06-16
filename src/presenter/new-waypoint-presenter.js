@@ -15,7 +15,7 @@ const generateBlankWaypoint = () => ({
   newPoint: true
 });
 
-export default class WaypointNewPresenter {
+export default class NewWaypointPresenter {
   #waypointsContainer = null;
   #waypointEditComponent = null;
   #changeData = null;

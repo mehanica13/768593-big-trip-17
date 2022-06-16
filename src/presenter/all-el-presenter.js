@@ -6,7 +6,7 @@ import SortView from '../view/sort-view.js';
 import MainContentView from '../view/main-content-view.js';
 import NoWaypointView from '../view/no-waypoint-view.js';
 import WaypointPresenter from './waypoint-presenter.js';
-import WaypointNewPresenter from './new-waypoint-presenter.js';
+import NewWaypointPresenter from './new-waypoint-presenter.js';
 import LoadingView from '../view/loading-view.js';
 import TripInfoView from '../view/trip-info-view.js';
 
@@ -24,7 +24,7 @@ export default class AllElPresenter {
   #currentSortType = null;
   #waypointsContainer = new MainContentView();
   #waypointPresenter = new Map ();
-  #waypointNewPresenter = null;
+  #NewWaypointPresenter = null;
   #isLoading = true;
   #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
@@ -33,7 +33,7 @@ export default class AllElPresenter {
     this.#waypointsModel = waypointsModel;
     this.#filterModel = filterModel;
     this.#currentSortType = SortType.DEFAULT;
-    this.#waypointNewPresenter = new WaypointNewPresenter(this.#waypointsContainer, this.#handleViewAction, this.#addNewWaypointBtn);
+    this.#NewWaypointPresenter = new NewWaypointPresenter(this.#waypointsContainer, this.#handleViewAction, this.#addNewWaypointBtn);
 
     this.#waypointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -70,7 +70,7 @@ export default class AllElPresenter {
       this.#noWaypointsComponent = null;
     }
 
-    this.#waypointNewPresenter.init(callback, this.#waypointsModel.offers, this.#waypointsModel.destinations);
+    this.#NewWaypointPresenter.init(callback, this.#waypointsModel.offers, this.#waypointsModel.destinations);
   };
 
   #renderWaypoint = (waypoint) => {
@@ -130,7 +130,7 @@ export default class AllElPresenter {
   };
 
   #clearTrip = ({resetSortType = false} = {}) => {
-    this.#waypointNewPresenter.destroy();
+    this.#NewWaypointPresenter.destroy();
     this.#waypointPresenter.forEach((presenter) => presenter.destroy());
     this.#waypointPresenter.clear();
 
@@ -150,7 +150,7 @@ export default class AllElPresenter {
   };
 
   #handleModeChange = () => {
-    this.#waypointNewPresenter.destroy();
+    this.#NewWaypointPresenter.destroy();
     this.#waypointPresenter.forEach((presenter) => presenter.resetView());
   };
 
@@ -167,11 +167,11 @@ export default class AllElPresenter {
         }
         break;
       case UserAction.ADD_WAYPOINT:
-        this.#waypointNewPresenter.setSaving();
+        this.#NewWaypointPresenter.setSaving();
         try {
           await this.#waypointsModel.addWaypoint(updateType, update);
         } catch(err) {
-          this.#waypointNewPresenter.setAborting();
+          this.#NewWaypointPresenter.setAborting();
         }
         break;
       case UserAction.DELETE_WAYPOINT:

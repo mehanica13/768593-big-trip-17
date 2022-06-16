@@ -23,39 +23,34 @@ export default class WaypointsApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
-  updateWaypoint = async (waypoint) => {
+  updateWaypoint = (waypoint) => this.#sendRequest(
+    `points/${waypoint.id}`,
+    Method.PUT,
+    JSON.stringify(this.#adaptToServer(waypoint)),
+    new Headers({'Content-Type': 'application/json'}),
+  );
+
+  addWaypoint = (waypoint) => this.#sendRequest(
+    'points',
+    Method.POST,
+    JSON.stringify(this.#adaptToServer(waypoint)),
+    new Headers({'Content-Type': 'application/json'}),
+  );
+
+  deleteWaypoint = (waypoint) => this.#sendRequest(
+    `points/${waypoint.id}`,
+    Method.DELETE,
+  );
+
+  #sendRequest = async (url, method, body, headers) => {
     const response = await this._load({
-      url: `points/${waypoint.id}`,
-      method: Method.PUT,
-      body: JSON.stringify(this.#adaptToServer(waypoint)),
-      headers: new Headers({'Content-Type': 'application/json'}),
+      url: url,
+      method: method,
+      body: body,
+      headers: headers,
     });
 
-    const parsedResponse = await ApiService.parseResponse(response);
-
-    return parsedResponse;
-  };
-
-  addWaypoint = async (waypoint) => {
-    const response = await this._load({
-      url: 'points',
-      method: Method.POST,
-      body: JSON.stringify(this.#adaptToServer(waypoint)),
-      headers: new Headers({'Content-Type': 'application/json'}),
-    });
-
-    const parsedResponse = await ApiService.parseResponse(response);
-
-    return parsedResponse;
-  };
-
-  deleteWaypoint = async (waypoint) => {
-    const response = await this._load({
-      url: `points/${waypoint.id}`,
-      method: Method.DELETE,
-    });
-
-    return response;
+    return await ApiService.parseResponse(response).catch(() => 'OK');
   };
 
   #adaptToServer = (waypoint) => {
